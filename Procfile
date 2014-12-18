@@ -1,1 +1,1 @@
-web: shortener
+web: subfwd
