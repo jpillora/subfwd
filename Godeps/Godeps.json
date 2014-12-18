@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/jpillora/shortener",
+	"ImportPath": "github.com/jpillora/subfwd",
 	"GoVersion": "go1.3.3",
 	"Deps": [
 		{
