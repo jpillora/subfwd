@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Go Sandbox</title>
+    <title>SubFwd</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="static/css/semantic.min.css">
     <link rel="stylesheet" href="static/css/app.css">
     <script>
-      //https redirect
-      var loc = window.location;
-      var href = loc.href.replace(/^https?:\/\/([^\/]+)/,"https://www.go-sandbox.com");
-      if(loc.hostname !== "localhost" && href !== loc.href) loc.href = href;
       //GA
       window.GoogleAnalyticsObject = 'ga';
       window.ga = window.ga || function () {
@@ -19,7 +16,7 @@
       
     </script>
   </head>
-  <body ng-app="sandbox">
+  <body ng-app="subfwd" class="subfwd">
     <style>
       #loading-cover {
           position:absolute;
@@ -61,38 +58,69 @@
     <div id="loading-cover">
       <h1>Go Sandbox</h1>
     </div>
-    <div id="dragger" class="dragger"></div>
-    <div id="ace"></div>
-    <div id="out">
-      <pre id="contents"></pre>
-    </div>
-    <div id="controls" ng-controller="Controls"><a href="https://github.com/jpillora/go-sandbox" target="_blank">
-        <div class="title">Go Sandbox</div></a>
-      <div ng-click="imports()" class="btn">
-        <div class="text">Go Imports</div>
-        <div class="hover">{{ super }} + Backslash</div>
+    <div ng-controller="ManagerController" class="ui manager segment">
+      <div class="ui top attached label">
+        <h2 class="ui header">Subdomain Forwarding</h2>
       </div>
-      <div ng-click="compile()" class="btn">
-        <div class="text">Run Program</div>
-        <div class="hover">{{ super }} + Return</div>
+      <div class="ui grid">
+        <div class="login row">
+          <div class="six wide column">
+            <div ng-class="{loading:statusLoading}" class="fluid ui icon input">
+              <input type="text" placeholder="Root domain" ng-model="id" class="id"><i class="search icon"></i>
+            </div>
+          </div>
+          <div class="six wide column">
+            <div ng-class="{disabled:!id}" class="fluid ui icon input">
+              <input type="password" placeholder="Password" ng-model="pass" ng-disabled="!id" class="pass"><i class="lock icon"></i>
+            </div>
+          </div>
+          <div class="four wide column">
+            <div ng-show="!status" ng-class="{disabled:!id||!pass}" ng-click="statusGet()" class="fluid ui primary button">Login</div>
+            <div ng-show="status" ng-click="logout()" class="fluid ui button">Logout</div>
+          </div>
+        </div>
+        <div ng-if="statusErr" class="message row">
+          <div ng-switch="statusErr" class="sixteen wide column">
+            <div ng-switch-when="NO_CNAME" class="ui info message">Please create a <code>*.{{ id }}</code> (wildcard domain) CNAME record containing<br><code>handle.subfwd.com</code></div>
+            <div ng-switch-when="NO_PASS" class="ui info message">Please create a <code>{{ id }}</code> (root domain) TXT record containing<br><code class="subfwdhash">subfwd-hash={{ hmac(pass) }}</code></div>
+            <div ng-switch-when="WRONG_CNAME" class="ui error message">Incorrect CNAME - <code>*.{{ id }}</code> should be set to <code>handle.subfwd.com</code></div>
+            <div ng-switch-when="WRONG_PASS" class="ui error message">Incorrect password</div>
+            <div ng-switch-when="NO_HEX" class="ui error message">Incorrect password format - Your TXT record should be in the form <code>subfwd-hash=[64-hexademical-characters]</code></div>
+            <div ng-switch-when="REDIS_ERR" class="ui error message">Database error - Please try again later</div>
+            <div ng-switch-default class="ui error message">Unknown error "{{ statusErr }}"</div>
+          </div>
+        </div>
+        <div ng-if="status" class="row">
+          <div class="sixteen wide column">
+            <table class="ui unstackable striped table">
+              <thead>
+                <tr>
+                  <th>Subdomain</th>
+                  <th>URL</th>
+                  <th>Total redirects</th>
+                  <th>Last used</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-if="subdomains.length == 0" class="nosub">
+                  <td colspan="4">You have no forwards setup yet</td>
+                </tr>
+                <tr ng-repeat="sd in subdomains">
+                  <td class="collapsing disabled"><i class="folder icon"></i>node_modules</td>
+                  <td>Initial commit</td>
+                  <td>Initial commit</td>
+                  <td class="right aligned collapsing">10 hours ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div style="display:none" class="sharebox">
-        <textarea readonly></textarea>
-      </div>
-      <div ng-click="share()" class="btn">
-        <div class="text">Share</div>
-        <div class="hover">{{ super }} + Fullstop</div>
-      </div><a href="https://github.com/jpillora/go-sandbox" target="_blank">
-        <div class="btn">
-          <div class="text">About</div>
-          <div class="hover">Go to GitHub!</div>
-        </div></a>
     </div>
     <script src="//www.google-analytics.com/analytics.js" defer></script>
-    <script src="static/js/ace.js" charset="utf-8"></script>
-    <script src="static/js/jquery.js"></script>
-    <script src="static/js/mousetrap.js"></script>
-    <script src="static/js/angular.js"></script>
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/angular.min.js"></script>
+    <script src="static/js/hmac-sha256.js"></script>
     <script src="static/js/app.js"></script>
   </body>
 </html>

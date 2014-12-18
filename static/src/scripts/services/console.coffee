@@ -1,6 +1,6 @@
-App.factory 'console', ->
+App.factory 'console', ($window) ->
 
-  ga('create', 'UA-38709761-13', 'auto')
+  ga('create', 'UA-38709761-15', 'auto')
   ga('send', 'pageview')
 
   setInterval (-> ga 'send', 'event', 'Ping'), 60*1000
@@ -8,10 +8,12 @@ App.factory 'console', ->
   str = (args) ->
     Array::slice.call(args).join(' ')
 
+  c = $window.console
+
   log: ->
-    console.log.apply console, arguments
+    c.log.apply c, arguments
     ga 'send', 'event', 'Log', str arguments
 
   error: ->
-    console.error.apply console, arguments
+    c.error.apply c, arguments
     ga 'send', 'event', 'Error', str arguments

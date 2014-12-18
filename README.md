@@ -3,15 +3,17 @@
 
 ---
 
-# Shortener
+# Subdomain Forwarding - as a Service
 
-URL shortening via sub-domains, written in Go
+Free, cloud hosted URL forwarding/shortening via sub-domains
+
+Instead of creating links like `example.com/ac9e20eff` you can do `foo.example.com`
 
 ## Usage
 
-Setup your domain here:
+Setup your domain and manage your forwards here:
 
-### https://shortener.jpillora.com
+### https://subfwd.com
 
 ## Contributing
 

@@ -1,1 +1,1 @@
-App = window.App = angular.module 'sandbox', []
+App = window.App = angular.module 'subfwd', []

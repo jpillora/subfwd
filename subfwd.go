@@ -4,12 +4,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/jpillora/shortener/lib"
+	"github.com/jpillora/subfwd/lib"
 )
 
 //run it
 func main() {
-	s := shortener.New()
+	s := subfwd.New()
 
 	port := os.Getenv("PORT")
 	if port == "" {
