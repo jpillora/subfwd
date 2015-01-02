@@ -1,9 +1,7 @@
 .manager(ng-switch-when="manager" ng-controller="ManagerController")
 	.ui.grid
 		.guide.row: .sixteen.wide.column
-			p <b>Subdomain Forwards</b> allow you to use DNS to create short URLs.
-			//- p Text...
-			//- p Text...
+			p <b>Subdomain Forwards</b> allows you to use DNS to create short URLs.
 		.login.row
 			.twelve.wide.column
 				.fluid.ui.icon.input
@@ -16,10 +14,13 @@
 			.sixteen.wide.column(ng-if="setupOk")
 				//- Succes message
 				.ui.success.message
-					| Your domain is ready. You may create TXT records for each subdomain you wish to forward.<br><br>
-					| For example, to forward <code>foo.example.com</code> to <code>http://my.example.com/long/url</code>,<br>
-					| create a <code>foo.example.com</code> TXT record containing<br>
-					| <code>subfwd-url=http://my.example.com/long/url</code>
+					| Your domain is ready. Now, you must add DNS records for each subdomain you wish to forward.<br>
+					| <br>
+					| For example, in order to forward<br>
+					| <a ng-href="http://rolled.{{ domain }}"><code>rolled.{{ domain }}</code></a> to
+					| <a href="http://youtu.be/dQw4w9WgXcQ"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
+					| you would create the CNAME <code>rolled.{{ domain }} = subfwd.com</code><br>
+					| and also the TXT record <code>rolled.{{ domain }} = http://youtu.be/dQw4w9WgXcQ</code>
 			.sixteen.wide.column(ng-if="setupErr" ng-switch="setupErr")
 				//- Info messages
 				.ui.info.message(ng-switch-when="NO_CNAME")
@@ -28,7 +29,11 @@
 				//- Error messages
 				.ui.error.message(ng-switch-when="WRONG_CNAME")
 					| Incorrect CNAME '<code>*.{{ domain }}</code>' should be set to '<code>handle.subfwd.com</code>'
-				.ui.error.message(ng-switch-when="SET_DOMAIN_ERROR")
+				.ui.error.message(ng-switch-when="URL_ERROR")
+					| Invalid URL
+				.ui.error.message(ng-switch-when="DOMAIN_ERROR")
+					| Invalid <b>root</b> domain
+				.ui.error.message(ng-switch-when="HEROKU_ERROR")
 					| Unable to setup your domain - Please try again later
 				.ui.error.message(ng-switch-default)
 					| Unknown error "{{ setupErr }}"

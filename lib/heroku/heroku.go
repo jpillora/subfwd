@@ -66,6 +66,7 @@ func HasDomain(domain string) bool {
 }
 
 func SetDomain(domain string) bool {
-	status, _ := request("POST", "/apps/"+appName+"/domains", `{"hostname":"*.`+domain+`"}`)
+	status, resp := request("POST", "/apps/"+appName+"/domains", `{"hostname":"*.`+domain+`"}`)
+	log.Print(resp)
 	return status == 201
 }

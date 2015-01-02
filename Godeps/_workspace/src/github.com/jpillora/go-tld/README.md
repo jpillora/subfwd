@@ -1,21 +1,35 @@
-# Subdomain Forwarding - as a Service
+# TLD Parser in Go
 
-Use DNS to create short URLs
+The `tld` package has the same API ([see godoc](http://godoc.org/github.com/jpillora/go-tld)) as `net/url` except `tld.URL` contains extra fields: `Subdomain`, `Domain`, `TLD` and `Port`.
 
-## Usage
+### Install
 
-Setup your domain here:
+```
+go get github.com/jpillora/go-tld
+```
 
-### https://subfwd.com
+### Usage
 
-## Contributing
+``` go
+package main
 
-See CONTRIBUTING.md
+import (
+	"fmt"
 
-## Todo
+	"github.com/jpillora/go-tld"
+)
 
+func main() {
+	u, _ := tld.Parse("http://a.very.complex-domain.co.uk:8080/foo/bar")
 
-* Figure out a nice way get free reliable storage on Heroku
+	fmt.Printf("[ %s ] [ %s ] [ %s ] [ %s ] [ %s ]", u.Subdomain, u.Domain, u.TLD, u.Port, u.Path)
+}
+```
+
+```
+$ go run main.go
+[ a.very ] [ complex-domain ] [ co.uk ] [ 8080 ] [ /foo/bar ]
+```
 
 #### MIT License
 

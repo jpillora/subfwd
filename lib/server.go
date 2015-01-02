@@ -1,11 +1,10 @@
 package subfwd
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"errors"
 	"regexp"
 
+	"github.com/jpillora/go-tld"
 	"github.com/jpillora/subfwd/lib/heroku"
 
 	"log"
@@ -24,7 +23,8 @@ type Subfwd struct {
 	fileserver http.Handler
 	log        func(string, ...interface{})
 	stats      struct {
-		Uptime string
+		Uptime   string
+		Forwards uint
 	}
 }
 
@@ -35,6 +35,25 @@ func New() *Subfwd {
 	s.stats.Uptime = time.Now().UTC().Format(time.RFC822)
 	s.log = log.New(os.Stdout, "subfwd: ", 0).Printf //log.LstdFlags
 	return s
+}
+
+//ListenAndServe and sandbox API and frontend
+func (s *Subfwd) ListenAndServe(addr string) error {
+
+	if !heroku.ValidCreds() {
+		log.Fatal("Invalid Heroku credentials")
+	}
+
+	server := &http.Server{
+		Addr:           addr,
+		Handler:        http.HandlerFunc(s.Route),
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	s.log("Listening at %s...", addr)
+	return server.ListenAndServe()
 }
 
 //route request
@@ -73,23 +92,20 @@ func (s *Subfwd) Admin(w http.ResponseWriter, r *http.Request) {
 //setup request
 func (s *Subfwd) setup(domain string) error {
 
-	//TODO - validate TLD - ensure root domain
-
-	//check CNAME
-	cname, err := net.LookupCNAME(randHex() + "." + domain)
+	url, err := tld.Parse("http://" + domain)
 	if err != nil {
-		return errors.New("NO_CNAME")
+		return errors.New("URL_ERROR")
 	}
-	cname = strings.TrimSuffix(cname, ".")
-	if cname != "handle.subfwd.com" && !strings.HasSuffix(cname, "herokuapp.com") {
-		return errors.New("WRONG_CNAME")
+
+	if url.Subdomain != "" || url.Domain == "" || url.TLD == "" {
+		return errors.New("DOMAIN_ERROR")
 	}
 
 	//check heroku
 	if !heroku.HasDomain(domain) {
 		s.log("Adding new domain: %s", domain)
 		if !heroku.SetDomain(domain) {
-			return errors.New("SET_DOMAIN_ERROR")
+			return errors.New("HEROKU_ERROR")
 		}
 	}
 
@@ -97,7 +113,6 @@ func (s *Subfwd) setup(domain string) error {
 }
 
 var trimPort = regexp.MustCompile(`\:\d+$`)
-var debugSwap = regexp.MustCompile(`\:\d+$`)
 
 //redirect request
 func (s *Subfwd) Redirect(w http.ResponseWriter, r *http.Request) {
@@ -115,12 +130,12 @@ func (s *Subfwd) Redirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, t := range txts {
-		if strings.HasPrefix(t, "subfwd-url=") {
-			url := strings.TrimPrefix(t, "subfwd-url=")
+	for _, url := range txts {
+		if strings.HasPrefix(url, "http") {
 			w.Header().Set("Location", url)
 			w.WriteHeader(302)
 			w.Write([]byte("You are being redirected to " + url))
+			s.stats.Forwards++
 			return
 		}
 	}
@@ -129,31 +144,4 @@ func (s *Subfwd) Redirect(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(404)
 	w.Write([]byte("Not found"))
 	return
-}
-
-//ListenAndServe and sandbox API and frontend
-func (s *Subfwd) ListenAndServe(addr string) error {
-
-	if !heroku.ValidCreds() {
-		log.Fatal("Invalid Heroku credentials")
-	}
-
-	server := &http.Server{
-		Addr:           addr,
-		Handler:        http.HandlerFunc(s.Route),
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-
-	s.log("Listening at %s...", addr)
-	return server.ListenAndServe()
-}
-
-//=============
-
-func randHex() string {
-	b := make([]byte, 16)
-	rand.Read(b)
-	return hex.EncodeToString(b)
 }

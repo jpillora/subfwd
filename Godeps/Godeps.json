@@ -1,18 +1,10 @@
 {
 	"ImportPath": "github.com/jpillora/subfwd",
-	"GoVersion": "go1.3.3",
+	"GoVersion": "go1.4",
 	"Deps": [
 		{
-			"ImportPath": "github.com/garyburd/redigo/internal",
-			"Rev": "cca3df8fa0670249a3f746bcc062c69aeba0517c"
-		},
-		{
-			"ImportPath": "github.com/garyburd/redigo/redis",
-			"Rev": "cca3df8fa0670249a3f746bcc062c69aeba0517c"
-		},
-		{
-			"ImportPath": "github.com/soveran/redisurl",
-			"Rev": "ac42ec99510b5f21d11560d316adcc5bc41f0915"
+			"ImportPath": "github.com/jpillora/go-tld",
+			"Rev": "6b9de2f06f73ecafab4686e73d04c23dfc55312d"
 		}
 	]
 }

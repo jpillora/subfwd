@@ -45,19 +45,19 @@ body {
   text-align: center;
 }
 
-/* line 30 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager .message code.subfwdhash {
-  font-size: small;
+/* line 28 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+.subfwd .manager .message code {
+  font-weight: bold;
 }
 
-/* line 32 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+/* line 31 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
 
-/* line 33 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+/* line 32 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
 .subfwd .manager table thead th.sub {
   width: 150px;
 }
 
-/* line 35 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+/* line 34 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
 .subfwd .manager table .nosub td {
   font-style: italic;
   text-align: center;

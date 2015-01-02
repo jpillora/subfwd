@@ -66,7 +66,7 @@
           <div class="ui grid">
             <div class="guide row">
               <div class="sixteen wide column">
-                <p><b>Subdomain Forwards</b> allow you to use DNS to create short URLs.</p>
+                <p><b>Subdomain Forwards</b> allows you to use DNS to create short URLs.</p>
               </div>
             </div>
             <div class="login row">
@@ -82,10 +82,13 @@
             <div ng-if="setupOk || setupErr" class="message row">
               <div ng-if="setupOk" class="sixteen wide column">
                 <div class="ui success message">
-                  Your domain is ready. You may create TXT records for each subdomain you wish to forward.<br><br>
-                  For example, to forward <code>foo.example.com</code> to <code>http://my.example.com/long/url</code>,<br>
-                  create a <code>foo.example.com</code> TXT record containing<br>
-                  <code>subfwd-url=http://my.example.com/long/url</code>
+                  Your domain is ready. Now, you must add DNS records for each subdomain you wish to forward.<br>
+                  <br>
+                  For example, in order to forward<br>
+                  <a ng-href="http://rolled.{{ domain }}"><code>rolled.{{ domain }}</code></a> to
+                  <a href="http://youtu.be/dQw4w9WgXcQ"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
+                  you would create the CNAME <code>rolled.{{ domain }} = subfwd.com</code><br>
+                  and also the TXT record <code>rolled.{{ domain }} = http://youtu.be/dQw4w9WgXcQ</code>
                 </div>
               </div>
               <div ng-if="setupErr" ng-switch="setupErr" class="sixteen wide column">
@@ -94,15 +97,29 @@
                   '<code>handle.subfwd.com</code>'
                 </div>
                 <div ng-switch-when="WRONG_CNAME" class="ui error message">Incorrect CNAME '<code>*.{{ domain }}</code>' should be set to '<code>handle.subfwd.com</code>'</div>
-                <div ng-switch-when="SET_DOMAIN_ERROR" class="ui error message">Unable to setup your domain - Please try again later</div>
+                <div ng-switch-when="URL_ERROR" class="ui error message">Invalid URL</div>
+                <div ng-switch-when="DOMAIN_ERROR" class="ui error message">Invalid <b>root</b> domain</div>
+                <div ng-switch-when="HEROKU_ERROR" class="ui error message">Unable to setup your domain - Please try again later</div>
                 <div ng-switch-default class="ui error message">Unknown error "{{ setupErr }}"</div>
               </div>
             </div>
           </div>
         </div>
         <div ng-switch-when="how" class="ui basic segment">
-          <p>Text...</p><a>
-            <div ng-click="$root.screen = 'manager'" class="small ui button">Back</div></a>
+          <p>
+            1. Once you've added (and propogated) a CNAME for your subdomain,
+            when this subdomain is visited - users will hit the subfwd app.
+          </p>
+          <p>
+            2. Once you've "Setup" your domain using this page, Heroku will route
+            the requests from your domain into the subfwd app.
+          </p>
+          <p>
+            3. Once these requests are recieved, the TXT record for this subdomain
+            is looked up and the user is forwarded onto it.
+          </p>
+          <p><a>
+              <div ng-click="$root.screen = 'manager'" class="small ui label">Back</div></a></p>
         </div>
       </div>
       <div class="ui bottom attached label">
