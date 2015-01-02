@@ -2,7 +2,7 @@ doctype html
 html
 	head
 		title SubFwd
-		meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+		//- meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
 		link(rel="stylesheet", href="static/css/semantic.min.css")
 		link(rel="stylesheet", href="static/css/app.css")
 		script.
@@ -16,8 +16,7 @@ html
 
 	body.subfwd(ng-app="subfwd")
 		include app/loading
-		include app/manager
-		//- static/css/app.css
+		include app/content
 		script(src="//www.google-analytics.com/analytics.js", defer)
 		script(src="static/js/jquery.min.js")
 		script(src="static/js/angular.min.js")

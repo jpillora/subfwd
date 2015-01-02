@@ -2,7 +2,6 @@
 <html>
   <head>
     <title>SubFwd</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="static/css/semantic.min.css">
     <link rel="stylesheet" href="static/css/app.css">
     <script>
@@ -56,65 +55,58 @@
       
     </script>
     <div id="loading-cover">
-      <h1>Go Sandbox</h1>
+      <h1>Subdomain Forwards</h1>
     </div>
-    <div ng-controller="ManagerController" class="ui manager segment">
+    <div class="ui content segment">
       <div class="ui top attached label">
-        <h2 class="ui header">Subdomain Forwarding</h2>
+        <h2 class="ui header">Subdomain Forwards</h2>
       </div>
-      <div class="ui grid">
-        <div class="login row">
-          <div class="six wide column">
-            <div ng-class="{loading:statusLoading}" class="fluid ui icon input">
-              <input type="text" placeholder="Root domain" ng-model="id" class="id"><i class="search icon"></i>
+      <div id="screens" ng-switch="screen">
+        <div ng-switch-when="manager" ng-controller="ManagerController" class="manager">
+          <div class="ui grid">
+            <div class="guide row">
+              <div class="sixteen wide column">
+                <p><b>Subdomain Forwards</b> allow you to use DNS to create short URLs.</p>
+              </div>
+            </div>
+            <div class="login row">
+              <div class="twelve wide column">
+                <div class="fluid ui icon input">
+                  <input type="text" placeholder="Root domain" ng-model="domain" enter="setup()"><i ng-class="{search: !setupOk, checkmark: setupOk}" class="icon"></i>
+                </div>
+              </div>
+              <div class="four wide column">
+                <button ng-class="{loading:loading, disabled: !domain || setupOk}" ng-disabled="loading || !domain || setupOk" ng-click="setup()" class="fluid ui primary button">Setup</button>
+              </div>
+            </div>
+            <div ng-if="setupOk || setupErr" class="message row">
+              <div ng-if="setupOk" class="sixteen wide column">
+                <div class="ui success message">
+                  Your domain is ready. You may create TXT records for each subdomain you wish to forward.<br><br>
+                  For example, to forward <code>foo.example.com</code> to <code>http://my.example.com/long/url</code>,<br>
+                  create a <code>foo.example.com</code> TXT record containing<br>
+                  <code>subfwd-url=http://my.example.com/long/url</code>
+                </div>
+              </div>
+              <div ng-if="setupErr" ng-switch="setupErr" class="sixteen wide column">
+                <div ng-switch-when="NO_CNAME" class="ui info message">
+                  Please create a '<code>*.{{ domain }}</code>' (wildcard domain) CNAME record which points to 
+                  '<code>handle.subfwd.com</code>'
+                </div>
+                <div ng-switch-when="WRONG_CNAME" class="ui error message">Incorrect CNAME '<code>*.{{ domain }}</code>' should be set to '<code>handle.subfwd.com</code>'</div>
+                <div ng-switch-when="SET_DOMAIN_ERROR" class="ui error message">Unable to setup your domain - Please try again later</div>
+                <div ng-switch-default class="ui error message">Unknown error "{{ setupErr }}"</div>
+              </div>
             </div>
           </div>
-          <div class="six wide column">
-            <div ng-class="{disabled:!id}" class="fluid ui icon input">
-              <input type="password" placeholder="Password" ng-model="pass" ng-disabled="!id" class="pass"><i class="lock icon"></i>
-            </div>
-          </div>
-          <div class="four wide column">
-            <div ng-show="!status" ng-class="{disabled:!id||!pass}" ng-click="statusGet()" class="fluid ui primary button">Login</div>
-            <div ng-show="status" ng-click="logout()" class="fluid ui button">Logout</div>
-          </div>
         </div>
-        <div ng-if="statusErr" class="message row">
-          <div ng-switch="statusErr" class="sixteen wide column">
-            <div ng-switch-when="NO_CNAME" class="ui info message">Please create a <code>*.{{ id }}</code> (wildcard domain) CNAME record containing<br><code>handle.subfwd.com</code></div>
-            <div ng-switch-when="NO_PASS" class="ui info message">Please create a <code>{{ id }}</code> (root domain) TXT record containing<br><code class="subfwdhash">subfwd-hash={{ hmac(pass) }}</code></div>
-            <div ng-switch-when="WRONG_CNAME" class="ui error message">Incorrect CNAME - <code>*.{{ id }}</code> should be set to <code>handle.subfwd.com</code></div>
-            <div ng-switch-when="WRONG_PASS" class="ui error message">Incorrect password</div>
-            <div ng-switch-when="NO_HEX" class="ui error message">Incorrect password format - Your TXT record should be in the form <code>subfwd-hash=[64-hexademical-characters]</code></div>
-            <div ng-switch-when="REDIS_ERR" class="ui error message">Database error - Please try again later</div>
-            <div ng-switch-default class="ui error message">Unknown error "{{ statusErr }}"</div>
-          </div>
+        <div ng-switch-when="how" class="ui basic segment">
+          <p>Text...</p><a>
+            <div ng-click="$root.screen = 'manager'" class="small ui button">Back</div></a>
         </div>
-        <div ng-if="status" class="row">
-          <div class="sixteen wide column">
-            <table class="ui unstackable striped table">
-              <thead>
-                <tr>
-                  <th>Subdomain</th>
-                  <th>URL</th>
-                  <th>Total redirects</th>
-                  <th>Last used</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-if="subdomains.length == 0" class="nosub">
-                  <td colspan="4">You have no forwards setup yet</td>
-                </tr>
-                <tr ng-repeat="sd in subdomains">
-                  <td class="collapsing disabled"><i class="folder icon"></i>node_modules</td>
-                  <td>Initial commit</td>
-                  <td>Initial commit</td>
-                  <td class="right aligned collapsing">10 hours ago</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      </div>
+      <div class="ui bottom attached label">
+        <p class="footer"><a ng-click="screen = 'how'" class="foot"> How does it work?</a><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2015 </span></p>
       </div>
     </div>
     <script src="//www.google-analytics.com/analytics.js" defer></script>

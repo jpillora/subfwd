@@ -1,108 +1,120 @@
 package subfwd
 
-import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"log"
-	"os"
-	"time"
+// This file has been deprecated
 
-	"github.com/garyburd/redigo/redis"
-	"github.com/soveran/redisurl"
-)
+// import (
+// 	"encoding/json"
+// 	"errors"
+// 	"fmt"
+// 	"log"
+// 	"os"
+// 	"sync"
+// 	"time"
 
-type Redis struct {
-	url string
-	c   redis.Conn
-}
+// 	"github.com/garyburd/redigo/redis"
+// 	"github.com/soveran/redisurl"
+// )
 
-var NotFound error = errors.New("RedisKeyNotFound")
+// type Redis struct {
+// 	url string
+// 	c   redis.Conn
+// 	mut sync.Mutex
+// }
 
-func NewRedis() *Redis {
-	url := os.Getenv("REDISTOGO_URL")
+// var NotFound error = errors.New("RedisKeyNotFound")
 
-	if url == "" {
-		log.Fatal("Missing REDISTOGO_URL")
-	}
+// func NewRedis() *Redis {
+// 	url := os.Getenv("REDISTOGO_URL")
 
-	c, err := redisurl.ConnectToURL(url)
-	if err != nil {
-		log.Fatal(err)
-	}
+// 	if url == "" {
+// 		log.Fatal("Missing REDISTOGO_URL")
+// 	}
 
-	r := &Redis{url, c}
+// 	c, err := redisurl.ConnectToURL(url)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	go r.keepalive()
+// 	r := &Redis{url, c, sync.Mutex{}}
 
-	return r
-}
+// 	go r.keepalive()
 
-type Keepalive struct {
-	StartTime time.Time
-	CurrTime  time.Time
-}
+// 	return r
+// }
 
-func (r *Redis) keepalive() {
-	start := time.Now()
-	for {
-		k := &Keepalive{start, time.Now()}
-		r.set("KEEPALIVE", k)
-		time.Sleep(5 * time.Second)
-	}
-}
+// type Keepalive struct {
+// 	StartTime time.Time
+// 	CurrTime  time.Time
+// }
 
-func (r *Redis) reconnect() {
-	log.Print("Redis: reconnecting...")
-	c, err := redisurl.ConnectToURL(r.url)
-	if err != nil {
-		log.Printf("Redis: reconnect failed: %s", err)
-		return
-	}
-	r.c = c
-	log.Print("Redis: reconnected")
-}
+// func (r *Redis) keepalive() {
+// 	start := time.Now()
+// 	for {
+// 		k := &Keepalive{start, time.Now()}
+// 		r.set("KEEPALIVE", k)
+// 		time.Sleep(5 * time.Second)
+// 	}
+// }
 
-func (r *Redis) set(key string, val interface{}) error {
-	valbytes, err := json.Marshal(val)
-	if err != nil {
-		return fmt.Errorf("Redis: set: %s", err)
-		return err
-	}
-	r.c.Send("SET", key, valbytes)
-	r.c.Flush()
-	v, err := r.c.Receive()
-	if err != nil {
-		go r.reconnect()
-		err = fmt.Errorf("Redis: set: %s", err)
-		log.Print(err)
-		return err
-	}
-	if v.(string) != "OK" {
-		return errors.New("Redis: set: server rejected: " + key)
-	}
+// func (r *Redis) reconnect() {
+// 	log.Print("Redis: reconnecting...")
+// 	c, err := redisurl.ConnectToURL(r.url)
+// 	if err != nil {
+// 		log.Printf("Redis: reconnect failed: %s", err)
+// 		return
+// 	}
+// 	r.c = c
+// 	log.Print("Redis: reconnected")
+// }
 
-	return nil
-}
+// func (r *Redis) set(key string, val interface{}) error {
 
-func (r *Redis) get(key string, val interface{}) error {
-	r.c.Send("GET", key)
-	r.c.Flush()
-	v, err := r.c.Receive()
-	if err != nil {
-		go r.reconnect()
-		err = fmt.Errorf("Redis: get: %s", err)
-		log.Print(err)
-		return err
-	}
-	if v == nil {
-		return NotFound
-	}
+// 	r.mut.Lock()
+// 	defer r.mut.Unlock()
 
-	b := v.([]byte)
-	err = json.Unmarshal(b, val)
-	if err != nil {
-		return fmt.Errorf("Redis: get: %s", err)
-	}
-	return nil
-}
+// 	valbytes, err := json.Marshal(val)
+// 	if err != nil {
+// 		return fmt.Errorf("Redis: set: %s", err)
+// 		return err
+// 	}
+// 	r.c.Send("SET", key, valbytes)
+// 	r.c.Flush()
+// 	v, err := r.c.Receive()
+// 	if err != nil {
+// 		r.reconnect()
+// 		err = fmt.Errorf("Redis: set: %s", err)
+// 		log.Print(err)
+// 		return err
+// 	}
+// 	if v.(string) != "OK" {
+// 		return errors.New("Redis: set: server rejected: " + key)
+// 	}
+
+// 	return nil
+// }
+
+// func (r *Redis) get(key string, val interface{}) error {
+
+// 	r.mut.Lock()
+// 	defer r.mut.Unlock()
+
+// 	r.c.Send("GET", key)
+// 	r.c.Flush()
+// 	v, err := r.c.Receive()
+// 	if err != nil {
+// 		r.reconnect()
+// 		err = fmt.Errorf("Redis: get: %s", err)
+// 		log.Print(err)
+// 		return err
+// 	}
+// 	if v == nil {
+// 		return NotFound
+// 	}
+
+// 	b := v.([]byte)
+// 	err = json.Unmarshal(b, val)
+// 	if err != nil {
+// 		return fmt.Errorf("Redis: get: %s", err)
+// 	}
+// 	return nil
+// }

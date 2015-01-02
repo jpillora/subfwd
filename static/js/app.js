@@ -4,50 +4,39 @@
   App = window.App = angular.module('subfwd', []);
 
   App.controller('ManagerController', function($rootScope, $scope, $window, $http, $timeout, console, hmac, storage) {
-    var cancel, scope;
+    var scope;
     scope = $rootScope.mgr = $scope;
-    scope.hmac = hmac;
-    scope.id = storage.get("id");
-    scope.pass = storage.get("pass");
-    scope.subdomains = [];
-    cancel = null;
-    scope.$watch("id", function(id) {
-      storage.set("id", id);
-      if (cancel) {
-        $timeout.cancel(cancel);
-      }
-      if (!/\S\.\S/.test(id)) {
-        return;
-      }
-      cancel = $timeout(scope.statusGet, 1000);
+    scope.domain = "";
+    scope.$watch("domain", function() {
+      return scope.setupOk = false;
     });
-    scope.$watch("pass", function(pass) {
-      return storage.set("pass", pass);
-    });
-    scope.statusLoading = false;
-    scope.statusGet = function() {
-      scope.statusErr = "";
-      scope.statusLoading = true;
-      $http.post("/status", {
-        ID: scope.id,
-        Pass: scope.pass
-      }).success(function(status) {
-        if (status) {
-          return scope.status = status;
-        }
+    scope.loading = false;
+    return scope.setup = function() {
+      scope.setupOk = false;
+      scope.setupErr = "";
+      scope.loading = true;
+      $http.get("/setup?domain=" + scope.domain).success(function() {
+        return scope.setupOk = true;
       }).error(function(err) {
         console.error(err);
-        return scope.statusErr = err;
+        return scope.setupErr = err;
       })["finally"](function() {
-        return scope.statusLoading = false;
+        return scope.loading = false;
       });
     };
-    return scope.logout = function() {
-      scope.status = null;
-      storage.del("id");
-      scope.id = "";
-      storage.del("pass");
-      scope.pass = "";
+  });
+
+  App.directive("enter", function() {
+    return function(scope, element, attrs) {
+      element.bind("keydown keypress", function(event) {
+        if (event.which !== 13) {
+          return;
+        }
+        scope.$apply(function() {
+          scope.$eval(attrs.enter);
+        });
+        return event.preventDefault();
+      });
     };
   });
 
@@ -75,10 +64,13 @@
   });
 
   App.factory('hmac', function() {
-    return function(msg) {
+    return function(key) {
       var hmac;
-      hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, "subfwd.com");
-      hmac.update(msg || "");
+      if (!key) {
+        return "";
+      }
+      hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, key);
+      hmac.update("SubFwd requires you to hash this sentence with the correct key.");
       return hmac.finalize().toString();
     };
   });
@@ -133,6 +125,7 @@
 
   App.run(function($rootScope, console) {
     window.root = $rootScope;
+    $rootScope.screen = "manager";
     console.log('Init');
     $("#loading-cover").fadeOut(500, function() {
       return $(this).remove();

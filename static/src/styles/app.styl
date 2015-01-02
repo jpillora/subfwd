@@ -2,29 +2,41 @@ darkGrey = #272822
 lightGrey = #2F3129
 
 html, body
-  // background darkGrey
-  // overflow hidden
   width 100%
   height 100%
   padding 20px
 
-// *
-//   box-sizing border-box
-
 .subfwd
   min-width 768px
-  .login
-    padding 10px
-    .input.disabled .pass
-      background-color: rgba(128, 128, 128, 0.28)
-
-  .manager
+  
+  .content
     margin 0 auto
     width 700px
+    // using an id override semantics !important margin
+    #screens
+      margin-top 3.5rem !important
+      margin-bottom 2.5rem !important
+      
+  .manager
+    .login
+      padding 10px
+      .input.disabled input
+        background-color: rgba(128, 128, 128, 0.28)
 
-  .message code.subfwdhash
-    font-size small
+    .message
+      text-align center
+      code.subfwdhash
+        font-size small
     
-  .nosub td
-    font-style italic
-    text-align center
+    table
+      thead th.sub
+        width 150px
+      .nosub td
+        font-style italic
+        text-align center
+  
+  .footer
+    opacity 0.75
+    text-align right
+    .foot
+      padding-left 10px
