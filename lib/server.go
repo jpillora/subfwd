@@ -90,6 +90,12 @@ func (s *Subfwd) admin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		b, _ := json.Marshal(s.stats)
 		w.Write(b)
+	} else if r.URL.Path == "/headers" {
+		//echo request
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		b, _ := json.Marshal(r.Header)
+		w.Write(b)
 	} else if r.URL.Path == "/setup" {
 		//perform setup check on domain
 		err := s.setup(r.URL.Query().Get("domain"))
