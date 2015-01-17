@@ -216,7 +216,8 @@ func substitiute(url string, r *http.Request) string {
 		var output []byte
 		switch s {
 		case "IP":
-			ip := r.Header.Get("cf-connecting-ip") //extract real-IP from heroku
+			ip := r.Header.Get("Cf-Connecting-Ip") //extract real-IP from heroku
+			fmt.Println("cf-ip " + ip)
 			if ip == "" {
 				ip = trimPort.ReplaceAllString(r.RemoteAddr, "")
 			}
