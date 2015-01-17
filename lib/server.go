@@ -20,6 +20,9 @@ import (
 	"time"
 )
 
+const appName = "subfwd"
+const appDomain = appName + ".com"
+
 //Subfwd is an HTTP server
 type Subfwd struct {
 	server     *http.Server
@@ -36,7 +39,7 @@ func New() *Subfwd {
 	s := &Subfwd{}
 	s.fileserver = http.FileServer(http.Dir("."))
 	s.stats.Uptime = time.Now().UTC().Format(time.RFC822)
-	s.log = log.New(os.Stdout, "subfwd: ", 0).Printf //log.LstdFlags
+	s.log = log.New(os.Stdout, appName+": ", 0).Printf //log.LstdFlags
 	return s
 }
 
@@ -57,7 +60,7 @@ func (s *Subfwd) ListenAndServe(port string) error {
 
 	s.log("Listening at %s...", port)
 	if port == "3000" {
-		s.log("View locally at http://subfwd.lvho.st:3000")
+		s.log("View locally at http://lvho.st:3000")
 	}
 
 	return server.ListenAndServe()
@@ -67,7 +70,7 @@ func (s *Subfwd) ListenAndServe(port string) error {
 func (s *Subfwd) route(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {
 		w.WriteHeader(404)
-	} else if r.Host == "subfwd.com" || r.Host == "lvho.st:3000" {
+	} else if r.Host == appDomain || r.Host == "lvho.st:3000" {
 		s.admin(w, r)
 	} else {
 		s.redirect(w, r)
@@ -120,7 +123,7 @@ func (s *Subfwd) setup(domain string) error {
 		return errors.New("NO_CNAME")
 	}
 	cname = strings.TrimSuffix(cname, ".")
-	if cname != "handle.subfwd.com" && !strings.HasSuffix(cname, "herokuapp.com") {
+	if cname != "handle."+appDomain && !strings.HasSuffix(cname, "herokuapp.com") {
 		s.log("WRONG_CNAME: %s", cname)
 		return errors.New("WRONG_CNAME")
 	}
@@ -152,17 +155,17 @@ func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 
 	//debug swap (local dns is too hard - use live records)
 	if domain == "lvho.st" {
-		domain = "subfwd.com"
+		domain = appDomain
 	}
 
-	subdomain := "subfwd-" + u.Subdomain + "." + domain
+	subdomain := appName + "-" + u.Subdomain + "." + domain
 
 	//try incoming subdomain
 	txts, err := net.LookupTXT(subdomain)
 
 	//fallback to default
 	if err != nil {
-		txts, err = net.LookupTXT("subfwd-default." + domain)
+		txts, err = net.LookupTXT(appName + "-default." + domain)
 	}
 
 	//not found!

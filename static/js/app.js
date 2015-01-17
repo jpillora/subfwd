@@ -16,8 +16,10 @@
       scope.setupErr = "";
       scope.loading = true;
       $http.get("/setup?domain=" + scope.domain).success(function() {
+        ga('send', 'event', 'Setup OK', scope.domain);
         return scope.setupOk = true;
       }).error(function(err) {
+        ga('send', 'event', 'Setup Error', scope.domain, err);
         console.error(err);
         return scope.setupErr = err;
       })["finally"](function() {

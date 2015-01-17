@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-const debug = true
+const debug = false
 const apiBase = "https://api.heroku.com"
 
 var apiKey = os.Getenv("HEROKU_API_KEY")

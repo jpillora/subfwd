@@ -1,14 +1,14 @@
-.ui.basic.slidable.hidden.segment(ng-class="{hidden: !help}")
+.ui.basic.segment(ng-cloak,ng-show="help")
 	p.bold How does it work?
 	ol
 		li.
 			Once you've added set your wildcard CNAME to <code>handle.subfwd.com</code>
 			all <b>non-matching</b> CNAME queries will point to subfwd.
 		li.
-			Then, use this page to setup (see below) your domain.
+			Then, use this page to setup your domain.
 		li.
-			Finally, when an HTTP request arrives at subfwd, it will take the subdomain and
-			prefix it with <code>subfwd-</code>, look up that TXT entry, ensure the result
+			Finally, when an HTTP request arrives at subfwd, it will take the domain and
+			prefix it with <code>subfwd-</code>, look up its TXT entry, ensure the result
 			is a URL and forward the user.
 
 	p.bold Why do we need a prefix?

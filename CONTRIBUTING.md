@@ -1,8 +1,11 @@
+
 ## Backend
 
 * Install [Go](http://golang.org)
 
-* `go run go-sandbox.go`
+* `go run subfwd.go`
+
+* Visit http://lvho.st:3000
 
 ## Frontend
 
