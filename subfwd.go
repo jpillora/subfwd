@@ -19,5 +19,5 @@ func main() {
 		port = "3000"
 	}
 
-	log.Fatal(s.ListenAndServe(":" + port))
+	log.Fatal(s.ListenAndServe(port))
 }

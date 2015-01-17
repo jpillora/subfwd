@@ -1,4 +1,4 @@
-App.controller 'ManagerController', ($rootScope, $scope, $window, $http, $timeout, console, hmac, storage) ->
+App.controller 'ManagerController', ($rootScope, $scope, $window, $http, $timeout, console, storage) ->
 	scope = $rootScope.mgr = $scope
 	scope.domain = ""
 

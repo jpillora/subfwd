@@ -4,132 +4,135 @@
     <title>SubFwd</title>
     <link rel="stylesheet" href="static/css/semantic.min.css">
     <link rel="stylesheet" href="static/css/app.css">
+    <style>[ng-cloak] { display: none }</style>
     <script>
       //GA
       window.GoogleAnalyticsObject = 'ga';
       window.ga = window.ga || function () {
       (window.ga.q = window.ga.q || []).push(arguments)
       }, window.ga.l = 1 * new Date();
-      //spinner
-      (function(t,e){if(typeof exports=="object")module.exports=e();else if(typeof define=="function"&&define.amd)define(e);else t.Spinner=e()})(this,function(){"use strict";var t=["webkit","Moz","ms","O"],e={},i;function o(t,e){var i=document.createElement(t||"div"),o;for(o in e)i[o]=e[o];return i}function n(t){for(var e=1,i=arguments.length;e<i;e++)t.appendChild(arguments[e]);return t}var r=function(){var t=o("style",{type:"text/css"});n(document.getElementsByTagName("head")[0],t);return t.sheet||t.styleSheet}();function s(t,o,n,s){var a=["opacity",o,~~(t*100),n,s].join("-"),f=.01+n/s*100,l=Math.max(1-(1-t)/o*(100-f),t),u=i.substring(0,i.indexOf("Animation")).toLowerCase(),d=u&&"-"+u+"-"||"";if(!e[a]){r.insertRule("@"+d+"keyframes "+a+"{"+"0%{opacity:"+l+"}"+f+"%{opacity:"+t+"}"+(f+.01)+"%{opacity:1}"+(f+o)%100+"%{opacity:"+t+"}"+"100%{opacity:"+l+"}"+"}",r.cssRules.length);e[a]=1}return a}function a(e,i){var o=e.style,n,r;i=i.charAt(0).toUpperCase()+i.slice(1);for(r=0;r<t.length;r++){n=t[r]+i;if(o[n]!==undefined)return n}if(o[i]!==undefined)return i}function f(t,e){for(var i in e)t.style[a(t,i)||i]=e[i];return t}function l(t){for(var e=1;e<arguments.length;e++){var i=arguments[e];for(var o in i)if(t[o]===undefined)t[o]=i[o]}return t}function u(t){var e={x:t.offsetLeft,y:t.offsetTop};while(t=t.offsetParent)e.x+=t.offsetLeft,e.y+=t.offsetTop;return e}function d(t,e){return typeof t=="string"?t:t[e%t.length]}var p={lines:12,length:7,width:5,radius:10,rotate:0,corners:1,color:"#000",direction:1,speed:1,trail:100,opacity:1/4,fps:20,zIndex:2e9,className:"spinner",top:"auto",left:"auto",position:"relative"};function c(t){if(typeof this=="undefined")return new c(t);this.opts=l(t||{},c.defaults,p)}c.defaults={};l(c.prototype,{spin:function(t){this.stop();var e=this,n=e.opts,r=e.el=f(o(0,{className:n.className}),{position:n.position,width:0,zIndex:n.zIndex}),s=n.radius+n.length+n.width,a,l;if(t){t.insertBefore(r,t.firstChild||null);l=u(t);a=u(r);f(r,{left:(n.left=="auto"?l.x-a.x+(t.offsetWidth>>1):parseInt(n.left,10)+s)+"px",top:(n.top=="auto"?l.y-a.y+(t.offsetHeight>>1):parseInt(n.top,10)+s)+"px"})}r.setAttribute("role","progressbar");e.lines(r,e.opts);if(!i){var d=0,p=(n.lines-1)*(1-n.direction)/2,c,h=n.fps,m=h/n.speed,y=(1-n.opacity)/(m*n.trail/100),g=m/n.lines;(function v(){d++;for(var t=0;t<n.lines;t++){c=Math.max(1-(d+(n.lines-t)*g)%m*y,n.opacity);e.opacity(r,t*n.direction+p,c,n)}e.timeout=e.el&&setTimeout(v,~~(1e3/h))})()}return e},stop:function(){var t=this.el;if(t){clearTimeout(this.timeout);if(t.parentNode)t.parentNode.removeChild(t);this.el=undefined}return this},lines:function(t,e){var r=0,a=(e.lines-1)*(1-e.direction)/2,l;function u(t,i){return f(o(),{position:"absolute",width:e.length+e.width+"px",height:e.width+"px",background:t,boxShadow:i,transformOrigin:"left",transform:"rotate("+~~(360/e.lines*r+e.rotate)+"deg) translate("+e.radius+"px"+",0)",borderRadius:(e.corners*e.width>>1)+"px"})}for(;r<e.lines;r++){l=f(o(),{position:"absolute",top:1+~(e.width/2)+"px",transform:e.hwaccel?"translate3d(0,0,0)":"",opacity:e.opacity,animation:i&&s(e.opacity,e.trail,a+r*e.direction,e.lines)+" "+1/e.speed+"s linear infinite"});if(e.shadow)n(l,f(u("#000","0 0 4px "+"#000"),{top:2+"px"}));n(t,n(l,u(d(e.color,r),"0 0 1px rgba(0,0,0,.1)")))}return t},opacity:function(t,e,i){if(e<t.childNodes.length)t.childNodes[e].style.opacity=i}});function h(){function t(t,e){return o("<"+t+' xmlns="urn:schemas-microsoft.com:vml" class="spin-vml">',e)}r.addRule(".spin-vml","behavior:url(#default#VML)");c.prototype.lines=function(e,i){var o=i.length+i.width,r=2*o;function s(){return f(t("group",{coordsize:r+" "+r,coordorigin:-o+" "+-o}),{width:r,height:r})}var a=-(i.width+i.length)*2+"px",l=f(s(),{position:"absolute",top:a,left:a}),u;function p(e,r,a){n(l,n(f(s(),{rotation:360/i.lines*e+"deg",left:~~r}),n(f(t("roundrect",{arcsize:i.corners}),{width:o,height:i.width,left:i.radius,top:-i.width>>1,filter:a}),t("fill",{color:d(i.color,e),opacity:i.opacity}),t("stroke",{opacity:0}))))}if(i.shadow)for(u=1;u<=i.lines;u++)p(u,-2,"progid:DXImageTransform.Microsoft.Blur(pixelradius=2,makeshadow=1,shadowopacity=.3)");for(u=1;u<=i.lines;u++)p(u);return n(e,l)};c.prototype.opacity=function(t,e,i,o){var n=t.firstChild;o=o.shadow&&o.lines||0;if(n&&e+o<n.childNodes.length){n=n.childNodes[e+o];n=n&&n.firstChild;n=n&&n.firstChild;if(n)n.opacity=i}}}var m=f(o("group"),{behavior:"url(#default#VML)"});if(!a(m,"transform")&&m.adj)h();else i=a(m,"animation");return c});
       
     </script>
   </head>
   <body ng-app="subfwd" class="subfwd">
-    <style>
-      #loading-cover {
-          position:absolute;
-          top:0;
-          left:0;
-          z-index:10;
-          width:100%;
-          height:100%;
-          background:white;
-          text-align:center;
-          padding-top:20px;
-      }
-      #spinner {
-          position:absolute;
-          top:0;
-          right:20px;
-      }
-      
-      
-    </style>
-    <div id="spinner" ng-show="loading"></div>
-    <script>
-      new Spinner({
-        lines: 10,
-        length: 0,
-        width: 5,
-        radius: 5,
-        corners: 1.0,
-        trail: 120,
-        speed: 1.0,
-        direction: 1,
-        shadow: false,
-        hwaccel: true,
-        top: 10, // Top position relative to parent in px
-        right: 10 // Left position relative to parent in px
-      }).spin(document.getElementById('spinner'));
-      
-    </script>
-    <div id="loading-cover">
-      <h1>Subdomain Forwards</h1>
-    </div>
     <div class="ui content segment">
       <div class="ui top attached label">
         <h2 class="ui header">Subdomain Forwards</h2>
       </div>
-      <div id="screens" ng-switch="screen">
-        <div ng-switch-when="manager" ng-controller="ManagerController" class="manager">
+      <div id="screens">
+        <div ng-controller="ManagerController" class="manager">
           <div class="ui grid">
             <div class="guide row">
               <div class="sixteen wide column">
-                <p><b>Subdomain Forwards</b> allows you to use DNS to create short URLs.</p>
+                <p><b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.subfwd.com" target="_blank">rolled.subfwd.com</a>)</p>
               </div>
             </div>
             <div class="login row">
               <div class="twelve wide column">
                 <div class="fluid ui icon input">
-                  <input type="text" placeholder="Root domain" ng-model="domain" enter="setup()"><i ng-class="{search: !setupOk, checkmark: setupOk}" class="icon"></i>
+                  <input type="text" placeholder="Enter the root domain you wish to forward from" ng-model="domain" enter="setup()"><i ng-class="{search: !setupOk, checkmark: setupOk}" class="icon"></i>
                 </div>
               </div>
               <div class="four wide column">
                 <button ng-class="{loading:loading, disabled: !domain || setupOk}" ng-disabled="loading || !domain || setupOk" ng-click="setup()" class="fluid ui primary button">Setup</button>
               </div>
             </div>
-            <div ng-if="setupOk || setupErr" class="message row">
+            <div ng-cloak ng-if="setupOk || setupErr" class="message row">
               <div ng-if="setupOk" class="sixteen wide column">
                 <div class="ui success message">
-                  Your domain is ready. Now, you must add DNS records for each subdomain you wish to forward.<br>
+                  Your domain is ready. To get started, log into your DNS manager and add TXT records for each subdomain you wish to forward.<br>
                   <br>
                   For example, in order to forward<br>
                   <a href="http://rolled.subfwd.com"><code>rolled.{{ domain }}</code></a> to
                   <a href="http://rolled.subfwd.com"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
-                  you would create the CNAME <code>rolled.{{ domain }} = subfwd.com</code><br>
-                  and also the TXT record <code>rolled.{{ domain }} = http://youtu.be/dQw4w9WgXcQ</code>
+                  <br>
+                  you simply create a TXT record <br>
+                  <code>subfwd-rolled.{{ domain }}</code> with <code>http://youtu.be/dQw4w9WgXcQ</code><br>
                 </div>
               </div>
               <div ng-if="setupErr" ng-switch="setupErr" class="sixteen wide column">
                 <div ng-switch-when="NO_CNAME" class="ui info message">
-                  Please create a '<code>*.{{ domain }}</code>' (wildcard domain) CNAME record which points to 
-                  '<code>handle.subfwd.com</code>'
+                  Please create a '<code>*.{{ domain }}</code>' (wildcard domain) CNAME record <br>
+                  which points to '<code>handle.subfwd.com</code>'
                 </div>
-                <div ng-switch-when="WRONG_CNAME" class="ui error message">Incorrect CNAME '<code>*.{{ domain }}</code>' should be set to '<code>handle.subfwd.com</code>'</div>
+                <div ng-switch-when="WRONG_CNAME" class="ui error message">
+                  Incorrect CNAME value<br>
+                  <code>*.{{ domain }}</code> should point to <code>handle.subfwd.com</code>
+                </div>
                 <div ng-switch-when="URL_ERROR" class="ui error message">Invalid URL</div>
                 <div ng-switch-when="DOMAIN_ERROR" class="ui error message">Invalid <b>root</b> domain</div>
-                <div ng-switch-when="HEROKU_ERROR" class="ui error message">Unable to setup your domain - Please try again later</div>
+                <div ng-switch-when="HEROKU_ERROR" class="ui error message">Unable to setup your domain. This will occur if this domain is already at Heroku.</div>
                 <div ng-switch-default class="ui error message">Unknown error "{{ setupErr }}"</div>
               </div>
             </div>
           </div>
         </div>
-        <div ng-switch-when="how" class="ui basic segment">
+        <div ng-class="{hidden: !help}" class="ui basic slidable hidden segment">
+          <p class="bold">How does it work?</p>
+          <ol>
+            <li>
+              Once you've added set your wildcard CNAME to <code>handle.subfwd.com</code>
+              all <b>non-matching</b> CNAME queries will point to subfwd.
+            </li>
+            <li>Then, use this page to setup (see below) your domain.</li>
+            <li>
+              Finally, when an HTTP request arrives at subfwd, it will take the subdomain and
+              prefix it with <code>subfwd-</code>, look up that TXT entry, ensure the result
+              is a URL and forward the user.
+              
+            </li>
+          </ol>
+          <p class="bold">Why do we need a prefix?</p>
           <p>
-            1. Once you've added (and propogated) a CNAME for your subdomain,
-            when this subdomain is visited - users will hit the subfwd app.
+            Since wildcard entries are only returned when there is <b>no</b> match, we must
+            prefix TXT entries with <code>subfwd-</code> to make sure it does not conflict with the desired
+            subdomain.
+            
           </p>
+          <p class="bold">Why is there a setup step?</p>
           <p>
-            2. Once you've "Setup" your domain using this page, Heroku will route
-            the requests from your domain into the subfwd app.
+            Subfwd runs on Heroku. Heroku uses an HTTP routing proxy. Large HTTP PaaS routers need to be
+            able to map a domain name to an application. Therefore, the setup step is required to insert your domain into this
+            application's "Custom Domains" list. If subfwd had it's own IP address (i.e. an EC2 instance),
+            this step could be removed.
+            
           </p>
+          <p class="bold">Extra features</p>
+          <ul>
+            <li>
+              Forwarding the <code>default</code> subdomain also acts as a fallback.
+              So all missing entries will use the <code>default</code> entry. You can create a  forward with the special TXT entry
+              <code>subfwd-default</code>.
+            </li>
+            <li>
+              Within your target URLs, you can include the following variables
+              which will be automatically substituted at forward time:
+              <ul>
+                <li><code>$IP</code> - requester's IP address</li>
+                <li><code>$DATE</code> - unix epoch in milliseconds</li>
+                <li><code>$HEADER[<i>NAME</i>]</code> - request header where NAME is the header name</li>
+              </ul>Try out this example <a href="http://vars.subfwd.com" target="_blank">vars.subfwd.com</a>
+              (inspect with <code>$ curl vars.subfwd.com</code>)<br>
+              <b>Warning</b> No query parameter escaping is performed.
+            </li>
+          </ul>
+          <p class="bold">Tips</p>
           <p>
-            3. Once these requests are recieved, the TXT record for this subdomain
-            is looked up and the user is forwarded onto it.
+            <a href="https://www.cloudflare.com/plans" target="_blank">CloudFlare</a> is highly recommended.
+            Subfwd uses CloudFlare's free tier for free DNS managment.
+            CloudFlare allows you to optionally activate individual domains to have them proxied through
+            their infrastructure, which turns on SSL, asset minification, caching, DDOS protection and other benefits.
+            
           </p>
-          <p><a>
-              <div ng-click="$root.screen = 'manager'" class="small ui label">Back</div></a></p>
         </div>
       </div>
       <div class="ui bottom attached label">
-        <p class="footer"><a ng-click="screen = 'how'" class="foot"> How does it work?</a><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2015 </span></p>
+        <p class="footer"><a ng-click="help = !help" ng-class="{bold: help}" class="foot">How does it work?</a><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2015 </span></p>
       </div>
     </div>
     <script src="//www.google-analytics.com/analytics.js" defer></script>
-    <script src="static/js/jquery.min.js"></script>
-    <script src="static/js/angular.min.js"></script>
-    <script src="static/js/hmac-sha256.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.min.js"></script>
+    <script src="//cdn.rawgit.com/EricWVGG/AngularSlideables/master/angularSlideables.js"></script>
     <script src="static/js/app.js"></script>
   </body>
 </html>

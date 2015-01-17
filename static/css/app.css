@@ -1,5 +1,5 @@
 
-/* line 43 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+/* line 58 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
 
 /* line 1 : /Users/jpillora/.grunt-sources/web/node_modules/grunt-contrib-stylus/node_modules/stylus/lib/functions/index.styl */
 
@@ -12,64 +12,90 @@ body {
 }
 
 /* line 9 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd {
+html body.subfwd {
   min-width: 768px;
 }
 
-/* line 12 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .content {
+/* line 11 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .slidable {
+  overflow: hidden;
+  height: 680px;
+  transition-property: height;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-in-out;
+}
+
+/* line 17 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .slidable.hidden {
+  height: 0px;
+}
+
+/* line 20 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .bold {
+  font-weight: bold;
+  color: #000;
+}
+
+/* line 24 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .content {
   margin: 0 auto;
+  margin-bottom: 50px;
   width: 700px;
 }
 
-/* line 16 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .content #screens {
+/* line 29 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .content #screens {
   margin-top: 3.5rem !important;
   margin-bottom: 2.5rem !important;
 }
 
-/* line 20 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+/* line 33 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
 
-/* line 21 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager .login {
+/* line 34 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .manager .login {
   padding: 10px;
 }
 
-/* line 23 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager .login .input.disabled input {
+/* line 36 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .manager .login .input.disabled input {
   background-color: rgba(128,128,128,0.28);
 }
 
-/* line 26 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager .message {
+/* line 39 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .manager .message {
   text-align: center;
 }
 
-/* line 28 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager .message code {
+/* line 41 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .manager .message code {
   font-weight: bold;
 }
 
-/* line 31 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+/* line 44 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
 
-/* line 32 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager table thead th.sub {
+/* line 45 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .manager table thead th.sub {
   width: 150px;
 }
 
-/* line 34 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .manager table .nosub td {
+/* line 47 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .manager table .nosub td {
   font-style: italic;
   text-align: center;
 }
 
-/* line 38 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .footer {
-  opacity: 0.75;
+/* line 51 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .footer {
+  opacity: 0.85;
   text-align: right;
 }
 
-/* line 41 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
-.subfwd .footer .foot {
+/* line 53 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .footer:hover {
+  opacity: 1;
+}
+
+/* line 56 : /Users/jpillora/Code/Go/src/github.com/jpillora/subfwd/static/src/styles/app.styl */
+html body.subfwd .footer .foot {
   padding-left: 10px;
 }

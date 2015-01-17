@@ -6,11 +6,24 @@ html, body
   height 100%
   padding 20px
 
-.subfwd
+html body.subfwd
   min-width 768px
-  
+  .slidable
+    overflow hidden
+    height 680px
+    transition-property height
+    transition-duration 0.3s
+    transition-timing-function ease-in-out
+    &.hidden
+      height 0px
+
+  .bold
+    font-weight bold
+    color black
+
   .content
     margin 0 auto
+    margin-bottom 50px
     width 700px
     // using an id override semantics !important margin
     #screens
@@ -36,7 +49,9 @@ html, body
         text-align center
   
   .footer
-    opacity 0.75
+    opacity 0.85
+    &:hover
+      opacity 1
     text-align right
     .foot
       padding-left 10px

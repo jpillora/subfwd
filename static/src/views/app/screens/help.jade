@@ -1,0 +1,50 @@
+.ui.basic.slidable.hidden.segment(ng-class="{hidden: !help}")
+	p.bold How does it work?
+	ol
+		li.
+			Once you've added set your wildcard CNAME to <code>handle.subfwd.com</code>
+			all <b>non-matching</b> CNAME queries will point to subfwd.
+		li.
+			Then, use this page to setup (see below) your domain.
+		li.
+			Finally, when an HTTP request arrives at subfwd, it will take the subdomain and
+			prefix it with <code>subfwd-</code>, look up that TXT entry, ensure the result
+			is a URL and forward the user.
+
+	p.bold Why do we need a prefix?
+	p.
+		Since wildcard entries are only returned when there is <b>no</b> match, we must
+		prefix TXT entries with <code>subfwd-</code> to make sure it does not conflict with the desired
+		subdomain.
+
+	p.bold Why is there a setup step?
+	p.
+		Subfwd runs on Heroku. Heroku uses an HTTP routing proxy. Large HTTP PaaS routers need to be
+		able to map a domain name to an application. Therefore, the setup step is required to insert your domain into this
+		application's "Custom Domains" list. If subfwd had it's own IP address (i.e. an EC2 instance),
+		this step could be removed.
+
+	p.bold Extra features
+	ul
+		li
+			| Forwarding the <code>default</code> subdomain also acts as a fallback.
+			| So all missing entries will use the <code>default</code> entry. You can create a  forward with the special TXT entry
+			| <code>subfwd-default</code>.
+		li
+			| Within your target URLs, you can include the following variables
+			| which will be automatically substituted at forward time:
+			ul
+				li <code>$IP</code> - requester's IP address
+				li <code>$DATE</code> - unix epoch in milliseconds
+				li <code>$HEADER[<i>NAME</i>]</code> - request header where NAME is the header name
+			
+			| Try out this example <a href="http://vars.subfwd.com" target="_blank">vars.subfwd.com</a>
+			| (inspect with <code>$ curl vars.subfwd.com</code>)<br>
+			| <b>Warning</b> No query parameter escaping is performed.
+	p.bold Tips
+	p.
+		<a href="https://www.cloudflare.com/plans" target="_blank">CloudFlare</a> is highly recommended.
+		Subfwd uses CloudFlare's free tier for free DNS managment.
+		CloudFlare allows you to optionally activate individual domains to have them proxied through
+		their infrastructure, which turns on SSL, asset minification, caching, DDOS protection and other benefits.
+

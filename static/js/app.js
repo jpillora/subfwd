@@ -3,7 +3,7 @@
 
   App = window.App = angular.module('subfwd', []);
 
-  App.controller('ManagerController', function($rootScope, $scope, $window, $http, $timeout, console, hmac, storage) {
+  App.controller('ManagerController', function($rootScope, $scope, $window, $http, $timeout, console, storage) {
     var scope;
     scope = $rootScope.mgr = $scope;
     scope.domain = "";
@@ -63,18 +63,6 @@
     };
   });
 
-  App.factory('hmac', function() {
-    return function(key) {
-      var hmac;
-      if (!key) {
-        return "";
-      }
-      hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, key);
-      hmac.update("SubFwd requires you to hash this sentence with the correct key.");
-      return hmac.finalize().toString();
-    };
-  });
-
   App.factory('storage', function() {
     var storage, wrap;
     wrap = function(ns, fn) {
@@ -127,9 +115,6 @@
     window.root = $rootScope;
     $rootScope.screen = "manager";
     console.log('Init');
-    $("#loading-cover").fadeOut(500, function() {
-      return $(this).remove();
-    });
   });
 
 }).call(this);

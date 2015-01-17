@@ -5,23 +5,43 @@ import (
 	"net"
 )
 
-func main() {
-	cname, err := net.LookupCNAME("asdasdasdasdasd.jilarra.com")
+// txts, err := net.LookupTXT("subfwd-default.subfwd.com")
 
+// if err != nil {
+// 	log.Print("err: " + err.Error())
+// } else {
+// 	for _, t := range txts {
+// 		log.Print(t)
+// 	}
+// }
+
+func main() {
+
+	cname, err := net.LookupCNAME("asdasdad.subfwd.com")
 	if err != nil {
 		log.Print("err: " + err.Error())
 	} else {
 		log.Print(cname)
 	}
 
-	txts, err := net.LookupTXT("subfwd.com")
+	// config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
+	// c := new(dns.Client)
 
-	if err != nil {
-		log.Print("err: " + err.Error())
-	} else {
-		for _, t := range txts {
-			log.Print(t)
-		}
-	}
+	// m := new(dns.Msg)
+	// m.SetQuestion(dns.Fqdn("foobar.subfwd.com"), dns.TypeCNAME)
+	// m.RecursionDesired = true
 
+	// server := net.JoinHostPort(config.Servers[0], config.Port)
+
+	// r, _, err := c.Exchange(m, server)
+	// if r == nil {
+	// 	log.Fatalf("*** error: %s\n", err.Error())
+	// }
+
+	// if r.Rcode != dns.RcodeSuccess {
+	// 	log.Fatalf(" *** invalid answer\n")
+	// }
+	// for _, a := range r.Answer {
+	// 	fmt.Printf("%v\n", a.Header().String())
+	// }
 }

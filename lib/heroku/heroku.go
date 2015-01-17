@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+const debug = true
 const apiBase = "https://api.heroku.com"
 
 var apiKey = os.Getenv("HEROKU_API_KEY")
@@ -15,10 +16,10 @@ var appName = os.Getenv("HEROKU_APP_NAME")
 var bearerToken = "Bearer " + apiKey
 var headers http.Header
 
-func request(method, path, body string) (int, string) {
+func request(method, path, body string) int {
 
 	if apiKey == "" {
-		return 0, ""
+		return 0
 	}
 
 	c := &http.Client{}
@@ -35,12 +36,15 @@ func request(method, path, body string) (int, string) {
 	resp, err := c.Do(r)
 	if err != nil {
 		log.Printf("Heroku: request: %s", err)
-		return 0, ""
+		return 0
 	}
 
-	b, _ := ioutil.ReadAll(resp.Body)
+	if debug {
+		b, _ := ioutil.ReadAll(resp.Body)
+		log.Printf("%s %s => %d %s", method, path, resp.StatusCode, b)
+	}
 
-	return resp.StatusCode, string(b)
+	return resp.StatusCode
 
 }
 
@@ -56,17 +60,13 @@ func ValidCreds() bool {
 		appName = "subfwd"
 	}
 
-	status, _ := request("GET", "/account", "")
-	return status == 200
+	return request("GET", "/account", "") == 200
 }
 
 func HasDomain(domain string) bool {
-	status, _ := request("GET", "/apps/"+appName+"/domains/*."+domain, "")
-	return status == 200
+	return request("GET", "/apps/"+appName+"/domains/*."+domain, "") == 200
 }
 
 func SetDomain(domain string) bool {
-	status, resp := request("POST", "/apps/"+appName+"/domains", `{"hostname":"*.`+domain+`"}`)
-	log.Print(resp)
-	return status == 201
+	return request("POST", "/apps/"+appName+"/domains", `{"hostname":"*.`+domain+`"}`) == 201
 }

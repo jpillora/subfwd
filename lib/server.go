@@ -1,7 +1,11 @@
 package subfwd
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"regexp"
 
 	"github.com/jpillora/go-tld"
@@ -10,12 +14,11 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 )
-
-var dev = os.Getenv("PROD") != "true"
 
 //Subfwd is an HTTP server
 type Subfwd struct {
@@ -38,44 +41,54 @@ func New() *Subfwd {
 }
 
 //ListenAndServe and sandbox API and frontend
-func (s *Subfwd) ListenAndServe(addr string) error {
+func (s *Subfwd) ListenAndServe(port string) error {
 
 	if !heroku.ValidCreds() {
 		log.Fatal("Invalid Heroku credentials")
 	}
 
 	server := &http.Server{
-		Addr:           addr,
-		Handler:        http.HandlerFunc(s.Route),
+		Addr:           ":" + port,
+		Handler:        http.HandlerFunc(s.route),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	s.log("Listening at %s...", addr)
+	s.log("Listening at %s...", port)
+	if port == "3000" {
+		s.log("View locally at http://subfwd.lvho.st:3000")
+	}
+
 	return server.ListenAndServe()
 }
 
 //route request
-func (s *Subfwd) Route(w http.ResponseWriter, r *http.Request) {
+func (s *Subfwd) route(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {
 		w.WriteHeader(404)
-	} else if r.Host == "subfwd.com" || r.Host == "subfwd.lvho.st:3000" {
-		s.Admin(w, r)
+	} else if r.Host == "subfwd.com" || r.Host == "lvho.st:3000" {
+		s.admin(w, r)
 	} else {
-		s.Redirect(w, r)
+		s.redirect(w, r)
 	}
 }
 
 //admin request
-func (s *Subfwd) Admin(w http.ResponseWriter, r *http.Request) {
+func (s *Subfwd) admin(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/" || strings.HasPrefix(r.URL.Path, "/static") {
 		//serve admin files
 		s.fileserver.ServeHTTP(w, r)
 		return
-		//perform setup check on domain
+	} else if r.URL.Path == "/stats" {
+		//show stats
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		b, _ := json.Marshal(s.stats)
+		w.Write(b)
 	} else if r.URL.Path == "/setup" {
+		//perform setup check on domain
 		err := s.setup(r.URL.Query().Get("domain"))
 		if err == nil {
 			w.WriteHeader(200)
@@ -92,13 +105,24 @@ func (s *Subfwd) Admin(w http.ResponseWriter, r *http.Request) {
 //setup request
 func (s *Subfwd) setup(domain string) error {
 
-	url, err := tld.Parse("http://" + domain)
+	u, err := tld.Parse("http://" + domain)
 	if err != nil {
 		return errors.New("URL_ERROR")
 	}
 
-	if url.Subdomain != "" || url.Domain == "" || url.TLD == "" {
+	if u.Subdomain != "" || u.Domain == "" || u.TLD == "" {
 		return errors.New("DOMAIN_ERROR")
+	}
+
+	//check wildcard CNAME
+	cname, err := net.LookupCNAME(randHex() + "." + domain)
+	if err != nil {
+		return errors.New("NO_CNAME")
+	}
+	cname = strings.TrimSuffix(cname, ".")
+	if cname != "handle.subfwd.com" && !strings.HasSuffix(cname, "herokuapp.com") {
+		s.log("WRONG_CNAME: %s", cname)
+		return errors.New("WRONG_CNAME")
 	}
 
 	//check heroku
@@ -112,36 +136,95 @@ func (s *Subfwd) setup(domain string) error {
 	return nil
 }
 
-var trimPort = regexp.MustCompile(`\:\d+$`)
-
 //redirect request
-func (s *Subfwd) Redirect(w http.ResponseWriter, r *http.Request) {
+func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 
-	domain := trimPort.ReplaceAllString(r.Host, "")
-
-	//debug swap
-	domain = strings.Replace(domain, ".lvho.st", ".subfwd.com", 1)
-
-	txts, err := net.LookupTXT(domain)
+	u, err := tld.Parse("http://" + r.Host)
 	if err != nil {
-		s.log("TXT Lookup failed on %s (%s)", domain, err)
+		s.log("URL parse failed on %s (%s)", r.Host, err)
 		w.WriteHeader(500)
-		w.Write([]byte("Subdomain lookup failed"))
+		w.Write([]byte("This shouldn't happen..."))
 		return
 	}
 
-	for _, url := range txts {
-		if strings.HasPrefix(url, "http") {
-			w.Header().Set("Location", url)
+	//the domain is the host without the port
+	domain := u.Domain + "." + u.TLD
+
+	//debug swap (local dns is too hard - use live records)
+	if domain == "lvho.st" {
+		domain = "subfwd.com"
+	}
+
+	subdomain := "subfwd-" + u.Subdomain + "." + domain
+
+	//try incoming subdomain
+	txts, err := net.LookupTXT(subdomain)
+
+	//fallback to default
+	if err != nil {
+		txts, err = net.LookupTXT("subfwd-default." + domain)
+	}
+
+	//not found!
+	if err != nil {
+		s.log("TXT Lookup failed on %s (%s)", subdomain, err)
+		w.WriteHeader(404)
+		w.Write([]byte("Redirect failed [Not found]"))
+		return
+	}
+
+	for _, u := range txts {
+		if strings.HasPrefix(u, "http") {
+			u = substitiute(u, r)
+			if _, err := url.Parse(u); err != nil {
+				s.log("Invalid URL '%s'", u)
+				w.WriteHeader(400)
+				w.Write([]byte("Redirect failed [Invalid URL]"))
+				return
+			}
+			w.Header().Set("Location", u)
 			w.WriteHeader(302)
-			w.Write([]byte("You are being redirected to " + url))
+			w.Write([]byte("You are being redirected to " + u))
 			s.stats.Forwards++
 			return
 		}
 	}
 
-	s.log("No URL set on %s", domain)
+	s.log("No URL set on %s", subdomain)
 	w.WriteHeader(404)
-	w.Write([]byte("Not found"))
+	w.Write([]byte("Redirect failed [No URL]"))
 	return
+}
+
+//=============
+
+var trimPort = regexp.MustCompile(`\:\d+$`)
+var urlVars = regexp.MustCompile(`\$(IP|DATE|HEADER\[[\w-]+\])`)
+
+func substitiute(url string, r *http.Request) string {
+	return string(urlVars.ReplaceAllFunc([]byte(url), func(input []byte) []byte {
+		s := string(input[1:])
+		var output []byte
+		switch s {
+		case "IP":
+			ip := r.Header.Get("cf-connecting-ip") //extract real-IP from heroku
+			if ip == "" {
+				ip = trimPort.ReplaceAllString(r.RemoteAddr, "")
+			}
+			output = []byte(ip)
+		case "DATE":
+			output = []byte(fmt.Sprintf("%d", time.Now().UnixNano()/1e6))
+		default: //"HEADER"
+			name := s[7:]
+			name = name[:len(name)-1]
+			output = []byte(r.Header.Get(name))
+		}
+		return output
+	}))
+}
+
+func randHex() string {
+	b := make([]byte, 16)
+	rand.Read(b)
+	return hex.EncodeToString(b)
 }
