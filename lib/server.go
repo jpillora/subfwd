@@ -216,14 +216,9 @@ func substitiute(url string, r *http.Request) string {
 		var output []byte
 		switch s {
 		case "IP":
-			ip := r.Header.Get("Cf-Connecting-Ip") //extract real-IP from heroku
-
-			for k, v := range r.Header {
-				fmt.Printf("%s: %v\n", k, v)
-			}
-
+			ip := r.Header.Get("X-Forwarded-For") //use real IP
 			if ip == "" {
-				ip = trimPort.ReplaceAllString(r.RemoteAddr, "")
+				ip = trimPort.ReplaceAllString(r.RemoteAddr, "") //else connection IP
 			}
 			output = []byte(ip)
 		case "DATE":
