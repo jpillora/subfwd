@@ -21,13 +21,13 @@ import (
 )
 
 const appName = "subfwd"
-const appDomain = appName + ".com"
+const appDomain = appName + ".herokuapp.com"
 
 //Subfwd is an HTTP server
 type Subfwd struct {
 	server     *http.Server
 	fileserver http.Handler
-	log        func(string, ...interface{})
+	logf       func(string, ...interface{})
 	stats      struct {
 		Uptime   string
 		Forwards uint
@@ -39,7 +39,7 @@ func New() *Subfwd {
 	s := &Subfwd{}
 	s.fileserver = http.FileServer(http.Dir("."))
 	s.stats.Uptime = time.Now().UTC().Format(time.RFC822)
-	s.log = log.New(os.Stdout, appName+": ", 0).Printf //log.LstdFlags
+	s.logf = log.New(os.Stdout, appName+": ", 0).Printf //log.LstdFlags
 	return s
 }
 
@@ -58,9 +58,9 @@ func (s *Subfwd) ListenAndServe(port string) error {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	s.log("Listening at %s...", port)
+	s.logf("Listening at %s...", port)
 	if port == "3000" {
-		s.log("View locally at http://lvho.st:3000")
+		s.logf("View locally at http://lvho.st:3000")
 	}
 
 	return server.ListenAndServe()
@@ -102,7 +102,7 @@ func (s *Subfwd) admin(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			w.WriteHeader(200)
 		} else {
-			s.log("setup failed: %s", err)
+			s.logf("setup failed: %s", err)
 			w.WriteHeader(500)
 			w.Write([]byte(err.Error()))
 		}
@@ -130,13 +130,13 @@ func (s *Subfwd) setup(domain string) error {
 	}
 	cname = strings.TrimSuffix(cname, ".")
 	if cname != "handle."+appDomain && !strings.HasSuffix(cname, "herokuapp.com") {
-		s.log("WRONG_CNAME: %s", cname)
+		s.logf("WRONG_CNAME: %s", cname)
 		return errors.New("WRONG_CNAME")
 	}
 
 	//check heroku
 	if !heroku.HasDomain(domain) {
-		s.log("Adding new domain: %s", domain)
+		s.logf("Adding new domain: %s", domain)
 		if !heroku.SetDomain(domain) {
 			return errors.New("HEROKU_ERROR")
 		}
@@ -150,7 +150,7 @@ func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 
 	u, err := tld.Parse("http://" + r.Host)
 	if err != nil {
-		s.log("URL parse failed on %s (%s)", r.Host, err)
+		s.logf("URL parse failed on %s (%s)", r.Host, err)
 		w.WriteHeader(500)
 		w.Write([]byte("This shouldn't happen..."))
 		return
@@ -176,7 +176,7 @@ func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 
 	//not found!
 	if err != nil {
-		s.log("TXT Lookup failed on %s (%s)", subdomain, err)
+		s.logf("TXT Lookup failed on %s (%s)", subdomain, err)
 		w.WriteHeader(404)
 		w.Write([]byte("Redirect failed [Not found]"))
 		return
@@ -186,7 +186,7 @@ func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(u, "http") {
 			u = substitiute(u, r)
 			if _, err := url.Parse(u); err != nil {
-				s.log("Invalid URL '%s'", u)
+				s.logf("Invalid URL '%s'", u)
 				w.WriteHeader(400)
 				w.Write([]byte("Redirect failed [Invalid URL]"))
 				return
@@ -194,12 +194,13 @@ func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Location", u)
 			w.WriteHeader(302)
 			w.Write([]byte("You are being redirected to " + u))
+			s.logf("redirecting %s -> %s", domain, u)
 			s.stats.Forwards++
 			return
 		}
 	}
 
-	s.log("No URL set on %s", subdomain)
+	s.logf("No URL set on %s", subdomain)
 	w.WriteHeader(404)
 	w.Write([]byte("Redirect failed [No URL]"))
 	return
