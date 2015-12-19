@@ -21,7 +21,7 @@ import (
 )
 
 const appName = "subfwd"
-const appDomain = appName + ".com"
+const appDomain = appName + ".herokuapp.com"
 
 //Subfwd is an HTTP server
 type Subfwd struct {
