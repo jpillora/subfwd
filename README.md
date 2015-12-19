@@ -6,16 +6,11 @@ Use DNS to create short URLs
 
 Setup your domain here:
 
-### https://subfwd.com
+### https://subfwd.herokuapp.com
 
 ## Contributing
 
 See CONTRIBUTING.md
-
-## Todo
-
-
-* Figure out a nice way get free reliable storage on Heroku
 
 #### MIT License
 
