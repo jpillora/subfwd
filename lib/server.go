@@ -210,9 +210,11 @@ func (s *Subfwd) execute(w http.ResponseWriter, r *http.Request) {
 		target = &def
 	} else {
 		s.logf("No TXT set for: %s", subdomain)
+		if s.tracker != nil {
+			go s.tracker.Send(ga.NewEvent("Fail - No TXT", subdomain))
+		}
 		w.WriteHeader(404)
 		w.Write([]byte("Redirect failed [No TXT]"))
-		go s.tracker.Send(ga.NewEvent("Fail - No TXT", subdomain))
 		return
 	}
 	//log
