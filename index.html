@@ -25,7 +25,7 @@
           <div class="ui grid">
             <div class="guide row">
               <div class="sixteen wide column">
-                <p><b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.subfwd.com" target="_blank">rolled.subfwd.com</a>)</p>
+                <p><b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.jpillora.com" target="_blank">rolled.jpillora.com</a>)</p>
               </div>
             </div>
             <div class="login row">
@@ -44,8 +44,8 @@
                   Your domain is ready. To get started, log into your DNS manager and add TXT records for each subdomain you wish to forward.<br>
                   <br>
                   For example, in order to forward<br>
-                  <a href="http://rolled.subfwd.com"><code>rolled.{{ domain }}</code></a> to
-                  <a href="http://rolled.subfwd.com"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
+                  <a href="http://rolled.jpillora.com"><code>rolled.{{ domain }}</code></a> to
+                  <a href="http://rolled.jpillora.com"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
                   <br>
                   you simply create a TXT record <br>
                   <code>subfwd-rolled.{{ domain }}</code> with <code>http://youtu.be/dQw4w9WgXcQ</code><br>
@@ -54,11 +54,11 @@
               <div ng-if="setupErr" ng-switch="setupErr" class="sixteen wide column">
                 <div ng-switch-when="NO_CNAME" class="ui info message">
                   Please create a '<code>*.{{ domain }}</code>' (wildcard domain) CNAME record <br>
-                  which points to '<code>handle.subfwd.com</code>'
+                  which points to '<code>subfwd.jpillora.com</code>'
                 </div>
                 <div ng-switch-when="WRONG_CNAME" class="ui error message">
                   Incorrect CNAME value<br>
-                  <code>*.{{ domain }}</code> should point to <code>handle.subfwd.com</code>
+                  <code>*.{{ domain }}</code> should point to <code>subfwd.jpillora.com</code>
                 </div>
                 <div ng-switch-when="URL_ERROR" class="ui error message">Invalid URL</div>
                 <div ng-switch-when="DOMAIN_ERROR" class="ui error message">Invalid <b>root</b> domain</div>
@@ -68,18 +68,17 @@
             </div>
           </div>
         </div>
-        <div ng-cloak ng-show="help" class="ui basic segment">
+        <div class="ui basic segment">
           <p class="bold">How does it work?</p>
           <ol>
             <li>
-              Once you've added set your wildcard CNAME to <code>handle.subfwd.com</code>
+              Once you've added set your wildcard CNAME to <code>subfwd.jpillora.com</code>
               all <b>non-matching</b> CNAME queries will point to subfwd.
             </li>
             <li>Then, use this page to setup your domain.</li>
             <li>
-              Finally, when an HTTP request arrives at subfwd, it will take the domain and
-              prefix it with <code>subfwd-</code>, look up its TXT entry, ensure the result
-              is a URL and forward the user.
+              Finally, when an HTTP request arrives at subfwd, the TXT entry <code>subfwd-&lt;domain&gt;</code>
+              will be looked up then return the contents as a 302 redirect to the user.
               
             </li>
           </ol>
@@ -116,6 +115,10 @@
               (inspect with <code>$ curl vars.subfwd.com</code>)<br>
               <b>Warning</b> No query parameter escaping is performed.
             </li>
+            <li>
+              Using the prefix <code>subproxy-</code> instead of <code>subfwd-</code> will proxy the
+              destination URL instead of forwarding to it.
+            </li>
           </ul>
           <p class="bold">Tips</p>
           <p>
@@ -123,12 +126,11 @@
             Subfwd uses CloudFlare's free tier for free DNS managment.
             CloudFlare allows you to optionally activate individual domains to have them proxied through
             their infrastructure, which turns on SSL, asset minification, caching, DDOS protection and other benefits.
-            
           </p>
         </div>
       </div>
       <div class="ui bottom attached label">
-        <p class="footer"><a ng-click="help = !help" ng-class="{bold: help}" class="foot">How does it work?</a><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2015 </span></p>
+        <p class="footer"><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2016 </span></p>
       </div>
     </div>
     <script src="//www.google-analytics.com/analytics.js" defer></script>

@@ -1,7 +1,7 @@
 .manager(ng-controller="ManagerController")
 	.ui.grid
 		.guide.row: .sixteen.wide.column
-			p <b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.subfwd.com" target="_blank">rolled.subfwd.com</a>)
+			p <b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.jpillora.com" target="_blank">rolled.jpillora.com</a>)
 		.login.row
 			.twelve.wide.column
 				.fluid.ui.icon.input
@@ -17,8 +17,8 @@
 					| Your domain is ready. To get started, log into your DNS manager and add TXT records for each subdomain you wish to forward.<br>
 					| <br>
 					| For example, in order to forward<br>
-					| <a href="http://rolled.subfwd.com"><code>rolled.{{ domain }}</code></a> to
-					| <a href="http://rolled.subfwd.com"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
+					| <a href="http://rolled.jpillora.com"><code>rolled.{{ domain }}</code></a> to
+					| <a href="http://rolled.jpillora.com"><code>http://youtu.be/dQw4w9WgXcQ</code></a>,<br>
 					| <br>
 					| you simply create a TXT record <br>
 					| <code>subfwd-rolled.{{ domain }}</code> with <code>http://youtu.be/dQw4w9WgXcQ</code><br>
@@ -26,11 +26,11 @@
 				//- Info messages
 				.ui.info.message(ng-switch-when="NO_CNAME")
 					| Please create a '<code>*.{{ domain }}</code>' (wildcard domain) CNAME record <br>
-					| which points to '<code>handle.subfwd.com</code>'
+					| which points to '<code>subfwd.jpillora.com</code>'
 				//- Error messages
 				.ui.error.message(ng-switch-when="WRONG_CNAME")
 					| Incorrect CNAME value<br>
-					| <code>*.{{ domain }}</code> should point to <code>handle.subfwd.com</code>
+					| <code>*.{{ domain }}</code> should point to <code>subfwd.jpillora.com</code>
 				.ui.error.message(ng-switch-when="URL_ERROR")
 					| Invalid URL
 				.ui.error.message(ng-switch-when="DOMAIN_ERROR")

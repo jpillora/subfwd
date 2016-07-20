@@ -43,6 +43,7 @@ func request(method, path, body string) int {
 		b, _ := ioutil.ReadAll(resp.Body)
 		log.Printf("%s %s => %d %s", method, path, resp.StatusCode, b)
 	}
+	resp.Body.Close()
 
 	return resp.StatusCode
 

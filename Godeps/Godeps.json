@@ -1,10 +1,19 @@
 {
 	"ImportPath": "github.com/jpillora/subfwd",
-	"GoVersion": "go1.4",
+	"GoVersion": "go1.7rc2",
+	"GodepVersion": "v74",
 	"Deps": [
 		{
+			"ImportPath": "github.com/jpillora/go-ogle-analytics",
+			"Rev": "49dbddd69887519886adf7763e0306e1f33ba50f"
+		},
+		{
 			"ImportPath": "github.com/jpillora/go-tld",
-			"Rev": "6b9de2f06f73ecafab4686e73d04c23dfc55312d"
+			"Rev": "a31ae10e978ab5f352c5dad2cfbd60546dcea75f"
+		},
+		{
+			"ImportPath": "github.com/tomasen/realip",
+			"Rev": "15489afd3be348430f5f67467d2bb6b2f9b757ed"
 		}
 	]
 }

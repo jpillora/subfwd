@@ -7,13 +7,17 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"sync"
 
+	ga "github.com/jpillora/go-ogle-analytics"
 	"github.com/jpillora/go-tld"
 	"github.com/jpillora/subfwd/lib/heroku"
+	"github.com/tomasen/realip"
 
 	"log"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"strings"
@@ -21,22 +25,26 @@ import (
 )
 
 const appName = "subfwd"
-const appDomain = appName + ".herokuapp.com"
+const appDomain = appName + ".jpillora.com"
 
 //Subfwd is an HTTP server
 type Subfwd struct {
 	server     *http.Server
 	fileserver http.Handler
-	logf       func(string, ...interface{})
-	stats      struct {
-		Uptime   string
-		Forwards uint
+	// cache      *lru.Cache TODO
+	tracker *ga.Client
+	logf    func(string, ...interface{})
+	stats   struct {
+		Uptime  string
+		Success uint
 	}
 }
 
 //New creates a new sandbox
 func New() *Subfwd {
 	s := &Subfwd{}
+	// s.cache, _ = lru.New(100)
+	s.tracker, _ = ga.NewClient(os.Getenv("GA_TRACKER_ID"))
 	s.fileserver = http.FileServer(http.Dir("."))
 	s.stats.Uptime = time.Now().UTC().Format(time.RFC822)
 	s.logf = log.New(os.Stdout, appName+": ", 0).Printf //log.LstdFlags
@@ -60,7 +68,7 @@ func (s *Subfwd) ListenAndServe(port string) error {
 
 	s.logf("Listening at %s...", port)
 	if port == "3000" {
-		s.logf("View locally at http://lvho.st:3000")
+		s.logf("View locally at http://abc.example.com:3000")
 	}
 
 	return server.ListenAndServe()
@@ -70,10 +78,10 @@ func (s *Subfwd) ListenAndServe(port string) error {
 func (s *Subfwd) route(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/favicon.ico" {
 		w.WriteHeader(404)
-	} else if r.Host == appDomain || r.Host == "lvho.st:3000" {
+	} else if r.Host == appDomain || r.Host == "abc.example.com:3000" {
 		s.admin(w, r)
 	} else {
-		s.redirect(w, r)
+		s.execute(w, r)
 	}
 }
 
@@ -129,7 +137,7 @@ func (s *Subfwd) setup(domain string) error {
 		return errors.New("NO_CNAME")
 	}
 	cname = strings.TrimSuffix(cname, ".")
-	if cname != "handle."+appDomain && !strings.HasSuffix(cname, "herokuapp.com") {
+	if cname != "subfwd.herokuapp.com" && cname != appDomain {
 		s.logf("WRONG_CNAME: %s", cname)
 		return errors.New("WRONG_CNAME")
 	}
@@ -145,9 +153,8 @@ func (s *Subfwd) setup(domain string) error {
 	return nil
 }
 
-//redirect request
-func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
-
+//execute request
+func (s *Subfwd) execute(w http.ResponseWriter, r *http.Request) {
 	u, err := tld.Parse("http://" + r.Host)
 	if err != nil {
 		s.logf("URL parse failed on %s (%s)", r.Host, err)
@@ -155,55 +162,77 @@ func (s *Subfwd) redirect(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("This shouldn't happen..."))
 		return
 	}
-
 	//the domain is the host without the port
 	domain := u.Domain + "." + u.TLD
-
-	//debug swap (local dns is too hard - use live records)
-	if domain == "lvho.st" {
-		domain = appDomain
+	if domain == "lvh.me" {
+		domain = "jpillora.com" //debug swap (local dns is too hard - use live records)
 	}
+	subdomain := u.Subdomain + "." + domain
 
-	subdomain := appName + "-" + u.Subdomain + "." + domain
-
-	//try incoming subdomain
-	txts, err := net.LookupTXT(subdomain)
-
-	//fallback to default
-	if err != nil {
-		txts, err = net.LookupTXT(appName + "-default." + domain)
-	}
-
-	//not found!
-	if err != nil {
-		s.logf("TXT Lookup failed on %s (%s)", subdomain, err)
-		w.WriteHeader(404)
-		w.Write([]byte("Redirect failed [Not found]"))
-		return
-	}
-
-	for _, u := range txts {
-		if strings.HasPrefix(u, "http") {
-			u = substitiute(u, r)
-			if _, err := url.Parse(u); err != nil {
-				s.logf("Invalid URL '%s'", u)
-				w.WriteHeader(400)
-				w.Write([]byte("Redirect failed [Invalid URL]"))
+	//lookup 3 txt entries in parallel
+	wg := &sync.WaitGroup{}
+	wg.Add(3)
+	lookup := func(domain string, result *url.URL) {
+		defer wg.Done()
+		txts, err := net.LookupTXT(domain)
+		if err != nil {
+			return
+		}
+		for _, txt := range txts {
+			if strings.HasPrefix(txt, "http") {
+				txt := substitiute(txt, r)
+				u, err := url.Parse(txt)
+				if err != nil {
+					s.logf("Invalid URL '%s'", u)
+					continue
+				}
+				*result = *u
 				return
 			}
-			w.Header().Set("Location", u)
-			w.WriteHeader(302)
-			w.Write([]byte("You are being redirected to " + u))
-			s.logf("redirecting %s -> %s", domain, u)
-			s.stats.Forwards++
-			return
 		}
 	}
 
-	s.logf("No URL set on %s", subdomain)
-	w.WriteHeader(404)
-	w.Write([]byte("Redirect failed [No URL]"))
-	return
+	var forward, proxy, def url.URL
+	go lookup("subfwd-"+u.Subdomain+"."+domain, &forward)
+	go lookup("subproxy-"+u.Subdomain+"."+domain, &proxy)
+	go lookup("subfwd-default."+domain, &def)
+	wg.Wait()
+	//find target url
+	redirect := true
+	var target *url.URL
+	if proxy.String() != "" {
+		redirect = false
+		target = &proxy
+		// target, _ = url.Parse("https://echo.jpillora.com/foo/bar")
+	} else if forward.String() != "" {
+		target = &forward
+	} else if def.String() != "" {
+		target = &def
+	} else {
+		s.logf("No TXT set for: %s", subdomain)
+		w.WriteHeader(404)
+		w.Write([]byte("Redirect failed [No TXT]"))
+		go s.tracker.Send(ga.NewEvent("Fail - No TXT", subdomain))
+		return
+	}
+	//log
+	action := "Redirect"
+	if !redirect {
+		action = "Proxy"
+	}
+	s.stats.Success++
+	log.Printf("#%05d [Success - %s] %s -> %s", s.stats.Success, action, subdomain, target)
+	if s.tracker != nil {
+		go s.tracker.Send(ga.NewEvent("Success - "+action, subdomain).Label(target.String()))
+	}
+	//perform
+	if redirect {
+		http.Redirect(w, r, target.String(), 302)
+	} else {
+		p := httputil.NewSingleHostReverseProxy(target)
+		r.Host = target.Host //fix hostname
+		p.ServeHTTP(w, r)
+	}
 }
 
 //=============
@@ -217,11 +246,7 @@ func substitiute(url string, r *http.Request) string {
 		var output []byte
 		switch s {
 		case "IP":
-			ip := r.Header.Get("X-Forwarded-For") //use real IP
-			if ip == "" {
-				ip = trimPort.ReplaceAllString(r.RemoteAddr, "") //else connection IP
-			}
-			output = []byte(ip)
+			output = []byte(realip.RealIP(r))
 		case "DATE":
 			output = []byte(fmt.Sprintf("%d", time.Now().UnixNano()/1e6))
 		default: //"HEADER"

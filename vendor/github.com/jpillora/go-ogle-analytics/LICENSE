@@ -1,20 +1,6 @@
-# Subdomain Forwarding - as a Service
+MIT License
 
-Use DNS to create short URLs
-
-## Usage
-
-Setup your domain here:
-
-### https://subfwd.jpillora.com
-
-## Contributing
-
-See CONTRIBUTING.md
-
-#### MIT License
-
-Copyright © 2015 Jaime Pillora &lt;dev@jpillora.com&gt;
+Copyright © 2015 dev@jpillora.com, Google Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
