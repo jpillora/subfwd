@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-// txts, err := net.LookupTXT("subfwd-default.subfwd.com")
+// txts, err := net.LookupTXT("subfwd-default.jpillora.com")
 
 // if err != nil {
 // 	log.Print("err: " + err.Error())
@@ -17,7 +17,7 @@ import (
 
 func main() {
 
-	cname, err := net.LookupCNAME("asdasdad.subfwd.com")
+	cname, err := net.LookupCNAME("asdasdad.jpillora.com")
 	if err != nil {
 		log.Print("err: " + err.Error())
 	} else {
@@ -28,7 +28,7 @@ func main() {
 	// c := new(dns.Client)
 
 	// m := new(dns.Msg)
-	// m.SetQuestion(dns.Fqdn("foobar.subfwd.com"), dns.TypeCNAME)
+	// m.SetQuestion(dns.Fqdn("foobar.jpillora.com"), dns.TypeCNAME)
 	// m.RecursionDesired = true
 
 	// server := net.JoinHostPort(config.Servers[0], config.Port)
