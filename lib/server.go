@@ -223,7 +223,8 @@ func (s *Subfwd) execute(w http.ResponseWriter, r *http.Request) {
 		action = "Proxy"
 	}
 	s.stats.Success++
-	log.Printf("#%05d [Success - %s] %s -> %s", s.stats.Success, action, subdomain, target)
+	log.Printf("#%05d [Success - %s] %s -> %s (from %s)", s.stats.Success, action, subdomain, target,
+		strings.TrimSpace(realip.RealIP(r)+" "+r.Header.Get("Referer")))
 	if s.tracker != nil {
 		go s.tracker.Send(ga.NewEvent("Success - "+action, subdomain).Label(target.String()))
 	}
