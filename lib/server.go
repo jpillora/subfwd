@@ -203,7 +203,6 @@ func (s *Subfwd) execute(w http.ResponseWriter, r *http.Request) {
 	if proxy.String() != "" {
 		redirect = false
 		target = &proxy
-		// target, _ = url.Parse("https://echo.jpillora.com/foo/bar")
 	} else if forward.String() != "" {
 		target = &forward
 	} else if def.String() != "" {
