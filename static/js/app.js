@@ -121,7 +121,7 @@
     scope.uptime = null;
     scope.forwards = 0;
     $http.get("/stats").success(function(data) {
-      scope.onHeroku = true;
+      scope.onHeroku = data.Heroku;
       scope.uptime = data.Uptime;
       return scope.forwards = data.Success;
     });

@@ -11,7 +11,7 @@ App.run ($rootScope, console, $http) ->
   scope.forwards = 0
   $http.get("/stats")
     .success((data)->
-      scope.onHeroku = true #data.Heroku
+      scope.onHeroku = data.Heroku
       scope.uptime = data.Uptime
       scope.forwards = data.Success
     )
