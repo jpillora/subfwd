@@ -12,6 +12,7 @@ import (
 	ga "github.com/jpillora/go-ogle-analytics"
 	"github.com/jpillora/go-tld"
 	"github.com/jpillora/subfwd/lib/heroku"
+	"github.com/jpillora/subfwd/static"
 	"github.com/tomasen/realip"
 
 	"log"
@@ -45,7 +46,7 @@ func New() *Subfwd {
 	s := &Subfwd{}
 	// s.cache, _ = lru.New(100)
 	s.tracker, _ = ga.NewClient(os.Getenv("GA_TRACKER_ID"))
-	s.fileserver = http.FileServer(http.Dir("."))
+	s.fileserver = static.Handler()
 	s.stats.Uptime = time.Now().UTC().Format(time.RFC822)
 	s.logf = log.New(os.Stdout, appName+": ", 0).Printf //log.LstdFlags
 	return s
