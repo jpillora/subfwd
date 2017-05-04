@@ -10,15 +10,11 @@ html, body
     padding 20px
 
 html body.subfwd
-  // min-width 768px
-  // .slidable
-  //   overflow hidden
-  //   height 680px
-  //   transition-property height
-  //   transition-duration 0.3s
-  //   transition-timing-function ease-in-out
-  //   &.hidden
-  //     height 0px
+  opacity 0
+  transition opacity linear 0.3s;
+
+  &.loaded
+    opacity 1
 
   .bold
     font-weight bold
@@ -28,12 +24,13 @@ html body.subfwd
     margin 0 auto
     margin-bottom 50px
     max-width 700px
+    
     // using an id override semantics !important margin
     #screens
       margin-top 3.5rem !important
       margin-bottom 3.5rem !important
       
-  .manager
+  .setup
     .login
       padding 10px
       .input.disabled input

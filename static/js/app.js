@@ -113,10 +113,18 @@
     };
   });
 
-  App.run(function($rootScope, console) {
-    window.root = $rootScope;
-    $rootScope.screen = "manager";
+  App.run(function($rootScope, console, $http) {
+    var scope;
+    scope = window.root = $rootScope;
     console.log('Init');
+    scope.onHeroku = false;
+    scope.uptime = null;
+    scope.forwards = 0;
+    $http.get("/stats").success(function(data) {
+      scope.onHeroku = true;
+      scope.uptime = data.Uptime;
+      return scope.forwards = data.Success;
+    });
   });
 
 }).call(this);

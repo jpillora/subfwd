@@ -32,10 +32,11 @@ const appDomain = appName + ".jpillora.com"
 type Subfwd struct {
 	server     *http.Server
 	fileserver http.Handler
-	// cache      *lru.Cache TODO
-	tracker *ga.Client
-	logf    func(string, ...interface{})
-	stats   struct {
+	onHeroku   bool
+	tracker    *ga.Client
+	logf       func(string, ...interface{})
+	stats      struct {
+		Heroku  bool
 		Uptime  string
 		Success uint
 	}
@@ -44,9 +45,10 @@ type Subfwd struct {
 //New creates a new sandbox
 func New() *Subfwd {
 	s := &Subfwd{}
-	// s.cache, _ = lru.New(100)
+	s.onHeroku = heroku.ValidCreds()
 	s.tracker, _ = ga.NewClient(os.Getenv("GA_TRACKER_ID"))
 	s.fileserver = static.Handler()
+	s.stats.Heroku = s.onHeroku
 	s.stats.Uptime = time.Now().UTC().Format(time.RFC822)
 	s.logf = log.New(os.Stdout, appName+": ", 0).Printf //log.LstdFlags
 	return s
@@ -54,11 +56,6 @@ func New() *Subfwd {
 
 //ListenAndServe and sandbox API and frontend
 func (s *Subfwd) ListenAndServe(port string) error {
-
-	if !heroku.ValidCreds() {
-		log.Fatal("Invalid Heroku credentials")
-	}
-
 	server := &http.Server{
 		Addr:           ":" + port,
 		Handler:        http.HandlerFunc(s.route),
@@ -77,6 +74,7 @@ func (s *Subfwd) ListenAndServe(port string) error {
 
 //route request
 func (s *Subfwd) route(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Host)
 	if r.URL.Path == "/favicon.ico" {
 		w.WriteHeader(404)
 	} else if r.Host == appDomain || r.Host == "abc.example.com:3000" {
@@ -88,12 +86,7 @@ func (s *Subfwd) route(w http.ResponseWriter, r *http.Request) {
 
 //admin request
 func (s *Subfwd) admin(w http.ResponseWriter, r *http.Request) {
-
-	if r.URL.Path == "/" || strings.HasPrefix(r.URL.Path, "/static") {
-		//serve admin files
-		s.fileserver.ServeHTTP(w, r)
-		return
-	} else if r.URL.Path == "/stats" {
+	if r.URL.Path == "/stats" {
 		//show stats
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
@@ -116,12 +109,16 @@ func (s *Subfwd) admin(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 		}
 	} else {
-		w.WriteHeader(404)
+		s.fileserver.ServeHTTP(w, r)
 	}
 }
 
 //setup request
 func (s *Subfwd) setup(domain string) error {
+
+	if !s.onHeroku {
+		return errors.New("HEROKU_DISABLED")
+	}
 
 	u, err := tld.Parse("http://" + domain)
 	if err != nil {

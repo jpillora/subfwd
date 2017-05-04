@@ -1,8 +1,8 @@
-.manager(ng-controller="ManagerController")
+.setup
 	.ui.grid
 		.guide.row: .sixteen.wide.column
 			p <b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.jpillora.com" target="_blank">rolled.jpillora.com</a>)
-		.login.row
+		.login.row(ng-if="onHeroku")
 			.twelve.wide.column
 				.fluid.ui.icon.input
 					input(type='text', placeholder='Enter the root domain you wish to forward from', ng-model="domain", enter="setup()")

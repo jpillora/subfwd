@@ -50,17 +50,18 @@ func request(method, path, body string) int {
 }
 
 func ValidCreds() bool {
+	if apiKey == "" {
+		return false
+	}
 	if headers == nil {
 		headers = make(http.Header)
 		headers.Set("Accept", "application/vnd.heroku+json; version=3")
 		headers.Set("Content-Type", "application/json")
 		headers.Set("Authorization", bearerToken)
 	}
-
 	if appName == "" {
 		appName = "subfwd"
 	}
-
 	return request("GET", "/account", "") == 200
 }
 

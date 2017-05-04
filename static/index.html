@@ -3,8 +3,8 @@
   <head>
     <title>subfwd</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="static/css/semantic.min.css">
-    <link rel="stylesheet" href="static/css/app.css">
+    <link rel="stylesheet" href="css/semantic.min.css">
+    <link rel="stylesheet" href="css/app.css">
     <style>[ng-cloak] { display: none }</style>
     <script>
       //GA
@@ -15,20 +15,20 @@
       
     </script>
   </head>
-  <body ng-app="subfwd" class="subfwd">
+  <body ng-app="subfwd" ng-class="{loaded: true}" class="subfwd">
     <div class="ui content segment">
       <div class="ui top attached label">
         <h2 class="ui header">Subdomain Forwards</h2>
       </div>
-      <div id="screens">
-        <div ng-controller="ManagerController" class="manager">
+      <div id="screens" ng-controller="ManagerController">
+        <div class="setup">
           <div class="ui grid">
             <div class="guide row">
               <div class="sixteen wide column">
                 <p><b>Subdomain Forwards</b> allows you to use DNS to create short URLs (like <a href="http://rolled.jpillora.com" target="_blank">rolled.jpillora.com</a>)</p>
               </div>
             </div>
-            <div class="login row">
+            <div ng-if="onHeroku" class="login row">
               <div class="twelve wide column">
                 <div class="fluid ui icon input">
                   <input type="text" placeholder="Enter the root domain you wish to forward from" ng-model="domain" enter="setup()"><i ng-class="{search: !setupOk, checkmark: setupOk}" class="icon"></i>
@@ -71,15 +71,12 @@
         <div class="ui basic segment">
           <p class="bold">How does it work?</p>
           <ol>
+            <li ng-if="onHeroku">Setup your domain above.</li>
+            <li>You create a DNS wildcard (<code>*</code>) CNAME entry pointed at <code>subfwd.jpillora.com</code>.</li>
+            <li>All <b>non-matching</b> CNAME queries will be served by subfwd.</li>
             <li>
-              Once you've added set your wildcard CNAME to <code>subfwd.jpillora.com</code>
-              all <b>non-matching</b> CNAME queries will point to subfwd.
-            </li>
-            <li>Then, use this page to setup your domain.</li>
-            <li>
-              Finally, when an HTTP request arrives at subfwd, the TXT entry <code>subfwd-&lt;domain&gt;</code>
-              will be looked up then return the contents as a 302 redirect to the user.
-              
+              When a request arrives, the DNS TXT entry <code>subfwd-&lt;domain&gt;</code>
+              will be looked up and if it contains a URL, the user will be forwarded (302) there.
             </li>
           </ol>
           <p class="bold">Why do we need a prefix?</p>
@@ -89,14 +86,16 @@
             subdomain.
             
           </p>
-          <p class="bold">Why is there a setup step?</p>
-          <p>
-            Subfwd runs on Heroku. Heroku uses an HTTP routing proxy. Large HTTP PaaS routers need to be
-            able to map a domain name to an application. Therefore, the setup step is required to insert your domain into this
-            application's "Custom Domains" list. If subfwd had it's own IP address (i.e. an EC2 instance),
-            this step could be removed.
-            
-          </p>
+          <div ng-if="onHeroku" class="heroku-help">
+            <p class="bold">Why is there a setup step?</p>
+            <p>
+              Subfwd runs on Heroku. Heroku uses an HTTP routing proxy. Large HTTP PaaS routers need to be
+              able to map a domain name to an application. Therefore, the setup step is required to insert your domain into this
+              application's "Custom Domains" list. If subfwd had it's own IP address (i.e. an EC2 instance),
+              this step could be removed.
+              
+            </p>
+          </div>
           <p class="bold">Extra features</p>
           <ul>
             <li>
@@ -130,12 +129,12 @@
         </div>
       </div>
       <div class="ui bottom attached label">
-        <p class="footer"><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2016 </span></p>
+        <p class="footer"><span class="foot">Forwarded {{ forwards }} requests</span><span ng-if="uptime" class="foot">Up {{ uptime }}</span><a href="https://github.com/jpillora/subfwd" target="_blank" class="foot">Fork on Github</a><a href="https://github.com/jpillora" target="_blank" class="foot">@jpillora</a><span class="foot">&copy; 2016 </span></p>
       </div>
     </div>
     <script src="//www.google-analytics.com/analytics.js" defer></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.min.js"></script>
     <script src="//cdn.rawgit.com/EricWVGG/AngularSlideables/master/angularSlideables.js"></script>
-    <script src="static/js/app.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>

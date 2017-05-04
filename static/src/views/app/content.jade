@@ -1,11 +1,13 @@
 .ui.content.segment
 	.ui.top.attached.label
 		h2.ui.header Subdomain Forwards
-	#screens
-		include screens/manager
+	#screens(ng-controller="ManagerController")
+		include screens/setup
 		include screens/help
 	.ui.bottom.attached.label
 		p.footer
+			span.foot Forwarded {{ forwards }} requests
+			span.foot(ng-if="uptime") Up {{ uptime }}
 			a.foot(href="https://github.com/jpillora/subfwd" target="_blank") Fork on Github
 			a.foot(href="https://github.com/jpillora" target="_blank") @jpillora
 			span.foot &copy; 2016 

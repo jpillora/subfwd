@@ -1,27 +1,29 @@
 .ui.basic.segment
 	p.bold How does it work?
 	ol
+		li(ng-if="onHeroku").
+			Setup your domain above.
 		li.
-			Once you've added set your wildcard CNAME to <code>subfwd.jpillora.com</code>
-			all <b>non-matching</b> CNAME queries will point to subfwd.
+			You create a DNS wildcard (<code>*</code>) CNAME entry pointed at <code>subfwd.jpillora.com</code>.
 		li.
-			Then, use this page to setup your domain.
+			All <b>non-matching</b> CNAME queries will be served by subfwd.
 		li.
-			Finally, when an HTTP request arrives at subfwd, the TXT entry <code>subfwd-&lt;domain&gt;</code>
-			will be looked up then return the contents as a 302 redirect to the user.
-
+			When a request arrives, the DNS TXT entry <code>subfwd-&lt;domain&gt;</code>
+			will be looked up and if it contains a URL, the user will be forwarded (302) there.
+			
 	p.bold Why do we need a prefix?
 	p.
 		Since wildcard entries are only returned when there is <b>no</b> match, we must
 		prefix TXT entries with <code>subfwd-</code> to make sure it does not conflict with the desired
 		subdomain.
 
-	p.bold Why is there a setup step?
-	p.
-		Subfwd runs on Heroku. Heroku uses an HTTP routing proxy. Large HTTP PaaS routers need to be
-		able to map a domain name to an application. Therefore, the setup step is required to insert your domain into this
-		application's "Custom Domains" list. If subfwd had it's own IP address (i.e. an EC2 instance),
-		this step could be removed.
+	.heroku-help(ng-if="onHeroku")
+		p.bold Why is there a setup step?
+		p.
+			Subfwd runs on Heroku. Heroku uses an HTTP routing proxy. Large HTTP PaaS routers need to be
+			able to map a domain name to an application. Therefore, the setup step is required to insert your domain into this
+			application's "Custom Domains" list. If subfwd had it's own IP address (i.e. an EC2 instance),
+			this step could be removed.
 
 	p.bold Extra features
 	ul
